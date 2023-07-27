@@ -1,5 +1,6 @@
 package com.example.horsechallenge.horseGame.ui
 
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.horsechallenge.horseGame.ui.model.boxTeblero
 
 @Preview
 @Composable
@@ -48,7 +50,6 @@ fun AdvertenciaFree() {
             .background(Color.Red)
             .padding(vertical = 8.dp)
             .clickable {
-                //TODO
             },
         horizontalAlignment = Alignment.CenterHorizontally
     ){
@@ -68,7 +69,7 @@ fun Body(modifier: Modifier) {
 
         Text(
             modifier = Modifier.padding(top = 22.dp),
-            text = "Horse Chanllege",
+            text = "Horse Challenge",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             fontSize = 26.sp
@@ -88,7 +89,11 @@ fun Body(modifier: Modifier) {
             CardInformativa(modifier = Modifier.weight(1f), title = "Lives", CardColor = Color(0xFFD60404), dato = "1")
             CardInformativa(modifier = Modifier.weight(1f), title = "Options", CardColor = Color(0xFFBB755F), dato = "6")
         }
+        Spacer(modifier = Modifier.size(16.dp))
         Tablero()
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(text = "Move the horse over board to complete all cells.", fontSize = 12.sp)
+        Text(text = "Game created by Erich Ezequiel Schnell.", fontSize = 12.sp)
     }
 
 }
@@ -123,57 +128,42 @@ fun Tablero() {
         Column(
             Modifier
                 .fillMaxWidth()
-                .size(100.dp)) {
-
-            Row(Modifier.weight(8f)) {
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.LightGray))
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.DarkGray))
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.LightGray))
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.DarkGray))
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.LightGray))
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.DarkGray))
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.LightGray))
-                CuadradoDelTablero(
-                    Modifier
-                        .weight(1f)
-                        .size(40.dp)
-                        .background(Color.DarkGray))
+        ) {
+            var colorAux:Boolean = false
+            for(i in 0..7){
+                colorAux = !colorAux
+                Row{
+                    for(j in 0..7){
+                        if (colorAux){
+                            CuadradoDelTablero(
+                                Modifier
+                                    .weight(1f)
+                                    .size(50.dp)
+                                    .background(Color.LightGray))
+                        } else {
+                            CuadradoDelTablero(
+                                Modifier
+                                    .weight(1f)
+                                    .size(50.dp)
+                                    .background(Color.DarkGray))
+                        }
+                        colorAux = !colorAux
+                    }
+                }
             }
         }
-//        Column(Modifier.fillMaxWidth().size(50.dp).background(Color.Yellow).align(Alignment.Center)) {
-//
-//        }
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(Color(0xB0FFFFFF))
+                .align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "LEVEL: 1", fontSize = 64.sp)
+            Spacer(modifier = Modifier.size(12.dp))
+            Text(text = "Lives: 1", fontSize = 32.sp)
+        }
     }
-    Text(text = "Move the horse over board to complete all cells.", fontSize = 12.sp)
-    Text(text = "Game created by Jose Javier Villena.", fontSize = 12.sp)
 }
 @Composable
 fun CuadradoDelTablero(modifier: Modifier) {
@@ -183,6 +173,7 @@ fun CuadradoDelTablero(modifier: Modifier) {
 
     }
 }
+
 
 @Composable
 fun Publicidad() {
