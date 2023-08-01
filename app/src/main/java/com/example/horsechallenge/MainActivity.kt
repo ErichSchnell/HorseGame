@@ -16,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-   // private val horseGameViewModel:HorseGameViewModel by viewModels()
+   private val horseGameViewModel:HorseGameViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,8 +27,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //HorseGameScreen(horseGameViewModel)
-                    HorseGameScreen()
+                    HorseGameScreen(horseGameViewModel)
                 }
             }
         }
