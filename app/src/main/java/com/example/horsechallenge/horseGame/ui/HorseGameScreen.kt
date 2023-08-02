@@ -7,6 +7,7 @@ import android.view.WindowManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,13 +24,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.horsechallenge.R
@@ -38,60 +39,105 @@ import com.example.horsechallenge.ui.theme.amaranthFamily
 
 @Composable
 fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
+
+    val isAppPremium:Boolean by horseGameViewModel.isAppPremium.observeAsState(false)
+
+    val showAlertFree:Boolean by horseGameViewModel.showAlertFree.observeAsState(!isAppPremium)
+    val showFinishedGame:Boolean by horseGameViewModel.showFinishedGame.observeAsState(false)
+
+    val level:Int by horseGameViewModel.level.observeAsState(1)
+    val moves:Int by horseGameViewModel.moves.observeAsState(60)
+    val time:String by horseGameViewModel.time.observeAsState("00:00")
+    val lives:Int by horseGameViewModel.lives.observeAsState(5)
+    val options:Int by horseGameViewModel.options.observeAsState(0)
+
+    val table by horseGameViewModel.table
+
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)){
-        AdvertenciaFree()
-        Body(Modifier.weight(1f))
-        Publicidad()
-
-    }
-}
-
-@Composable
-fun AdvertenciaFree() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.error)
-            .padding(vertical = 8.dp)
-            .clickable {
-
-            }, horizontalAlignment = Alignment.CenterHorizontally
+        .background(MaterialTheme.colorScheme.background),
+        verticalArrangement = Arrangement.Bottom
     ){
-        Text(
-            text = "Tap here to remove ads, get more levels and unlimited lives",
-            fontFamily = amaranthFamily,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.errorContainer
+        AlertFree(
+            show = showAlertFree,
+        ) {
+            horseGameViewModel.toggleShowAlertFree(showAlertFree)
+            horseGameViewModel.togglePremium(isAppPremium)
+        }
+
+        Body(
+            Modifier.weight(1f),
+            level = level,
+            moves = moves,
+            time = time,
+            lives = lives,
+            options = options,
+            table = table,
+            isAppPremium = isAppPremium,
+            showFinishedGame = showFinishedGame
         )
+        Publicidad(
+            show = showAlertFree
+        )
+
     }
 }
 
-@Preview
 @Composable
-fun Body(modifier: Modifier) {//modifier: Modifier
+fun AlertFree(show: Boolean, onClickAlert: () -> Unit) {
+    //if(show){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.error)
+                .padding(vertical = 8.dp)
+                .clickable {
+                    onClickAlert()
+                }, horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Text(
+                text = "Tap here to remove ads, get more levels and unlimited lives",
+                fontFamily = amaranthFamily,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.errorContainer
+            )
+        }
+    //}
+}
+
+@Composable
+fun Body(
+    modifier: Modifier,
+    level: Int,
+    moves: Int,
+    time: String,
+    lives: Int,
+    options: Int,
+    table: List<List<ItemModel>>,
+    showFinishedGame: Boolean,
+    isAppPremium: Boolean
+) {
     val scrollState = rememberScrollState()
     Column(modifier = modifier.verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally){
         Title()
         Spacer(modifier = Modifier.size(30.dp))
 
-        Level()
+        Level(level)
         Spacer(modifier = Modifier.size(10.dp))
 
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp)){
-            Moves(Modifier.weight(1f))
-            Time(Modifier.weight(1f))
-            Lives(Modifier.weight(1f))
-            Options(Modifier.weight(1f))
+            Moves(moves, Modifier.weight(1f))
+            Time(time, Modifier.weight(1f))
+            Lives(Modifier.weight(1f), lives, isAppPremium)
+            Options(options, Modifier.weight(1f))
         }
         Spacer(modifier = Modifier.size(30.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
-            Tablero()
-            FinishedGame(Modifier.align(Alignment.Center))
+            Tablero(table, isAppPremium)
+            FinishedGame(Modifier.align(Alignment.Center),showFinishedGame)
         }
         Spacer(modifier = Modifier.size(15.dp))
 
@@ -109,7 +155,7 @@ fun Title() {
     )
 }
 @Composable
-fun Level() {
+fun Level(level: Int) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -127,7 +173,7 @@ fun Level() {
             style = MaterialTheme.typography.bodySmall
         )
         Text(
-            text = "1",
+            text = level.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodySmall
@@ -136,7 +182,7 @@ fun Level() {
     }
 }
 @Composable
-fun Moves(modifier: Modifier) {
+fun Moves(moves: Int, modifier: Modifier) {
     Card(
         modifier = modifier
             .padding(4.dp)
@@ -153,7 +199,7 @@ fun Moves(modifier: Modifier) {
             style = MaterialTheme.typography.bodySmall
         )
         Text(
-            text = "00",
+            text = moves.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodySmall
@@ -162,7 +208,7 @@ fun Moves(modifier: Modifier) {
     }
 }
 @Composable
-fun Time(modifier: Modifier) {
+fun Time(time: String, modifier: Modifier) {
     Card(
         modifier = modifier
             .padding(4.dp)
@@ -179,7 +225,7 @@ fun Time(modifier: Modifier) {
             style = MaterialTheme.typography.bodySmall
         )
         Text(
-            text = "00:00",
+            text = time,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodySmall
@@ -188,9 +234,9 @@ fun Time(modifier: Modifier) {
     }
 }
 @Composable
-fun Lives(modifier: Modifier) {
-    val state = false
-    val cardColor = if(state){
+fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean) {
+    //premiumColor()
+    val cardColor = if (isAppPremium) {
         MaterialTheme.colorScheme.tertiary
     } else {
         MaterialTheme.colorScheme.error
@@ -212,7 +258,7 @@ fun Lives(modifier: Modifier) {
             style = MaterialTheme.typography.bodySmall
         )
         Text(
-            text = "0",
+            text = lives.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodySmall
@@ -221,7 +267,7 @@ fun Lives(modifier: Modifier) {
     }
 }
 @Composable
-fun Options(modifier: Modifier) {
+fun Options(options: Int, modifier: Modifier) {
     Card(
         modifier = modifier
             .padding(4.dp)
@@ -239,7 +285,7 @@ fun Options(modifier: Modifier) {
         )
         LinearProgressIndicator(progress = 0.5f)
         Text(
-            text = "0",
+            text = options.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodySmall
@@ -249,44 +295,40 @@ fun Options(modifier: Modifier) {
 }
 
 @Composable
-fun Tablero() {
-    val table: MutableList<MutableList<ItemModel>> = mutableListOf()
-
-    for (i in 0 until 8){
-        val newRow: MutableList<ItemModel> = mutableListOf()
-        for (j in 0 until 8){
-            newRow.add(ItemModel(x = i, y = j))
-        }
-        table.add(newRow)
-    }
-
-    Column() {
+fun Tablero(table: List<List<ItemModel>>, isAppPremium: Boolean) {
+    Column {
         table.forEach { fila ->
             Row(modifier = Modifier.fillMaxWidth()) {
                 fila.forEach { ite ->
-                    ItemTablero(ite)
+                    ItemTablero(ite,isAppPremium)
                 }
             }
         }
     }
 }
 @Composable
-fun ItemTablero(itemModel: ItemModel){
+fun ItemTablero(itemModel: ItemModel, isAppPremium: Boolean){//, onClickItem:()->Unit
     val (width, _) = getScreenDimensions(LocalContext.current)
     val sizeBox = width/8
 
-    val background = if ((itemModel.x+itemModel.y)%2 == 0){
+    itemModel.background = if ((itemModel.x+itemModel.y)%2 == 0){
         MaterialTheme.colorScheme.secondaryContainer
     } else {
-        MaterialTheme.colorScheme.secondary
+        if (isAppPremium){
+            MaterialTheme.colorScheme.tertiary
+        } else{
+            MaterialTheme.colorScheme.secondary
+        }
+
     }
 
     Box(
         modifier = Modifier
             .width(sizeBox.dp)
             .height(sizeBox.dp)
-            .background(background)
+            .background(itemModel.background)
             .clickable {
+                //onClickItem()
                 if (itemModel.enable) {
                     itemModel.selected = !itemModel.selected
                 }
@@ -304,28 +346,30 @@ fun ItemTablero(itemModel: ItemModel){
 
 
 @Composable
-fun FinishedGame(modifier: Modifier) {
-    Column(modifier = modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.onSurfaceVariant)
-        .padding(vertical = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Level: 1",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        Text(
-            text = "Lives: 1",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically){
-            NextLevel()
-            ShareGame()
+fun FinishedGame(modifier: Modifier, showFinishedGame: Boolean) {
+    if(showFinishedGame){
+        Column(modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.onSurfaceVariant)
+            .padding(vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Level: 1",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Text(
+                text = "Lives: 1",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically){
+                NextLevel()
+                ShareGame()
+            }
         }
     }
 }
@@ -372,13 +416,13 @@ fun getScreenDimensions(context: Context): Pair<Float, Float> {
 }
 
 @Composable
-fun Publicidad() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .size(170.dp)
-            .background(Color.Green)
-    ){
-
+fun Publicidad(show: Boolean) {
+    if(show){
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .size(170.dp)
+                .background(MaterialTheme.colorScheme.error)
+        )
     }
 }
