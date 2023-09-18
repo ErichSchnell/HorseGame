@@ -7,12 +7,10 @@ import android.view.WindowManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,14 +26,74 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
 import com.example.horsechallenge.R
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 import com.example.horsechallenge.ui.theme.amaranthFamily
+
+fun homeConstraints(): ConstraintSet{
+    return ConstraintSet{
+        val textFreeRef = createRefFor("textFreeRef")
+        val textTitleRef = createRefFor("textTitleRef")
+        val cardLevelRef = createRefFor("cardLevelRef")
+        val cardMovesRef = createRefFor("cardMovesRef")
+        val cardTimeRef = createRefFor("cardTimeRef")
+        val cardLivesRef = createRefFor("cardLivesRef")
+        val cardOptionsRef = createRefFor("cardOptionsRef")
+        val boxPublicityRef = createRefFor("boxPublicityRef")
+        val topTitleGuide = createGuidelineFromTop(0.1f)
+
+        constrain(textFreeRef){
+            top.linkTo(parent.top)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+        }
+        constrain(textTitleRef){
+            top.linkTo(topTitleGuide)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+        }
+        constrain(cardLevelRef){
+            top.linkTo(textTitleRef.bottom, margin = 16.dp)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+        }
+        constrain(cardMovesRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(cardTimeRef.start)
+        }
+        constrain(cardTimeRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(cardMovesRef.end)
+            end.linkTo(cardLivesRef.start)
+        }
+        constrain(cardLivesRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(cardTimeRef.end)
+            end.linkTo(cardOptionsRef.start)
+        }
+        constrain(cardOptionsRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(cardLivesRef.end)
+            end.linkTo(parent.end)
+        }
+        constrain(boxPublicityRef){
+            bottom.linkTo(parent.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+        }
+
+    }
+}
 
 @Composable
 fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
@@ -53,7 +111,23 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
 
     val table by horseGameViewModel.table
 
-    Column(modifier = Modifier
+
+//    BoxWithConstraints {
+        val constraints = homeConstraints()
+        ConstraintLayout(constraints){
+            AlertFree(Modifier.layoutId("textFreeRef")){}
+            Title(Modifier.layoutId("textTitleRef"))
+            Level(modifier = Modifier.layoutId("cardLevelRef"), level = 0)
+            Moves(modifier = Modifier.layoutId("cardMovesRef"), moves = 0)
+            Time(modifier = Modifier.layoutId("cardTimeRef"), time = "00:00")
+            Lives(modifier = Modifier.layoutId("cardLivesRef"), lives = 5)
+            Options(modifier = Modifier.layoutId("cardOptionsRef"), options = 0)
+            Publicidad(modifier = Modifier.layoutId("boxPublicityRef"), show = true)
+        }
+//    }
+
+
+    /*Column(modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Bottom
@@ -80,11 +154,25 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             show = showAlertFree
         )
 
-    }
+    }*/
 }
 
+
+
 @Composable
-fun AlertFree(show: Boolean, onClickAlert: () -> Unit) {
+fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
+    Text(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.error),
+        text = "Tap here to remove ads, get more levels and unlimited lives",
+        fontFamily = amaranthFamily,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.errorContainer
+    )
+
+
+    /*
     //if(show){
         Column(
             modifier = Modifier
@@ -102,62 +190,63 @@ fun AlertFree(show: Boolean, onClickAlert: () -> Unit) {
                 color = MaterialTheme.colorScheme.errorContainer
             )
         }
-    //}
+    //}*/
 }
 
+//@Composable
+//fun Body(
+//    modifier: Modifier,
+//    level: Int,
+//    moves: Int,
+//    time: String,
+//    lives: Int,
+//    options: Int,
+//    table: List<List<ItemModel>>,
+//    showFinishedGame: Boolean,
+//    isAppPremium: Boolean
+//) {
+//    val scrollState = rememberScrollState()
+//    Column(modifier = modifier.verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally){
+//        Title(Modifier.layoutId("textTitleRef"))
+//        Spacer(modifier = Modifier.size(30.dp))
+//
+//        Level(level)
+//        Spacer(modifier = Modifier.size(10.dp))
+//
+//        Row(modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(horizontal = 32.dp)){
+//            Moves(moves, Modifier.weight(1f))
+//            Time(time, Modifier.weight(1f))
+//            Lives(Modifier.weight(1f), lives, isAppPremium)
+//            Options(options, Modifier.weight(1f))
+//        }
+//        Spacer(modifier = Modifier.size(30.dp))
+//
+//        Box(modifier = Modifier.fillMaxWidth()) {
+//            Tablero(table, isAppPremium)
+//            FinishedGame(Modifier.align(Alignment.Center),showFinishedGame)
+//        }
+//        Spacer(modifier = Modifier.size(15.dp))
+//
+//        Credits()
+//    }
+//
+//}
+
 @Composable
-fun Body(
-    modifier: Modifier,
-    level: Int,
-    moves: Int,
-    time: String,
-    lives: Int,
-    options: Int,
-    table: List<List<ItemModel>>,
-    showFinishedGame: Boolean,
-    isAppPremium: Boolean
-) {
-    val scrollState = rememberScrollState()
-    Column(modifier = modifier.verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally){
-        Title()
-        Spacer(modifier = Modifier.size(30.dp))
-
-        Level(level)
-        Spacer(modifier = Modifier.size(10.dp))
-
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp)){
-            Moves(moves, Modifier.weight(1f))
-            Time(time, Modifier.weight(1f))
-            Lives(Modifier.weight(1f), lives, isAppPremium)
-            Options(options, Modifier.weight(1f))
-        }
-        Spacer(modifier = Modifier.size(30.dp))
-
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Tablero(table, isAppPremium)
-            FinishedGame(Modifier.align(Alignment.Center),showFinishedGame)
-        }
-        Spacer(modifier = Modifier.size(15.dp))
-
-        Credits()
-    }
-
-}
-@Composable
-fun Title() {
+fun Title(modifier: Modifier) {
     Text(
-        modifier = Modifier.padding(top = 34.dp),
+        modifier = modifier,
         text = "Horse Challenge",
         style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.primary
     )
 }
 @Composable
-fun Level(level: Int) {
+fun Level(modifier: Modifier, level: Int) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
             .size(50.dp),
@@ -234,7 +323,7 @@ fun Time(time: String, modifier: Modifier) {
     }
 }
 @Composable
-fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean) {
+fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean = false) {
     //premiumColor()
     val cardColor = if (isAppPremium) {
         MaterialTheme.colorScheme.tertiary
@@ -399,7 +488,7 @@ fun ShareGame(){
 }
 
 @Composable
-fun Credits(){
+fun Credits(modifier: Modifier){
     Text(text = "Move the horse over board to complete all cells.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
     Text(text = "Game created by Erich Ezequiel Schnell.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
 }
@@ -416,10 +505,10 @@ fun getScreenDimensions(context: Context): Pair<Float, Float> {
 }
 
 @Composable
-fun Publicidad(show: Boolean) {
+fun Publicidad(modifier: Modifier, show: Boolean) {
     if(show){
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .size(170.dp)
                 .background(MaterialTheme.colorScheme.error)
