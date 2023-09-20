@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
@@ -26,16 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.ConstraintSet
 import com.example.horsechallenge.R
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 import com.example.horsechallenge.ui.theme.amaranthFamily
@@ -43,7 +38,8 @@ import com.example.horsechallenge.ui.theme.amaranthFamily
 @Composable
 fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
 
-    val isAppPremium:Boolean by horseGameViewModel.isAppPremium.observeAsState(false)
+
+    //val isAppPremium:Boolean by horseGameViewModel.isAppPremium.observeAsState(false)
 
     val showAlertFree:Boolean by horseGameViewModel.showAlertFree.observeAsState(!isAppPremium)
     val showFinishedGame:Boolean by horseGameViewModel.showFinishedGame.observeAsState(false)
@@ -54,7 +50,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
     val lives:Int by horseGameViewModel.lives.observeAsState(5)
     val options:Int by horseGameViewModel.options.observeAsState(0)
 
-    val table by horseGameViewModel.table
+    val board by horseGameViewModel.board
 
     val constraints = horseGameViewModel.homeConstraints()
     ConstraintLayout(constraints){
@@ -69,7 +65,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
         Lives(modifier = Modifier.layoutId("cardLivesRef"), lives = 5)
         Options(modifier = Modifier.layoutId("cardOptionsRef"), options = 0)
 
-        Tablero(modifier = Modifier.layoutId("tableRef"), table = table, isAppPremium = false)
+        Board(modifier = Modifier.layoutId("tableRef"), board = board, isAppPremium = false)
         FinishedGame(modifier = Modifier.layoutId("finishedGameRef"), showFinishedGame = false)
 
         Credits(modifier = Modifier.layoutId("creditsRef"))
@@ -298,10 +294,10 @@ fun Options(options: Int, modifier: Modifier) {
 }
 
 @Composable
-fun Tablero(modifier: Modifier, table: List<List<ItemModel>>, isAppPremium: Boolean) {
+fun Board(modifier: Modifier, board: List<List<ItemModel>>, isAppPremium: Boolean) {
     Box(modifier = modifier){
         Column {
-            table.forEach { fila ->
+            board.forEach { fila ->
                 Row(modifier = Modifier.fillMaxWidth()) {
                     fila.forEach { item ->
                         ItemTablero(item,isAppPremium)
