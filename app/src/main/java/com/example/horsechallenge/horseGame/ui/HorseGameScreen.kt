@@ -33,67 +33,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import com.example.horsechallenge.R
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 import com.example.horsechallenge.ui.theme.amaranthFamily
-
-fun homeConstraints(): ConstraintSet{
-    return ConstraintSet{
-        val textFreeRef = createRefFor("textFreeRef")
-        val textTitleRef = createRefFor("textTitleRef")
-        val cardLevelRef = createRefFor("cardLevelRef")
-        val cardMovesRef = createRefFor("cardMovesRef")
-        val cardTimeRef = createRefFor("cardTimeRef")
-        val cardLivesRef = createRefFor("cardLivesRef")
-        val cardOptionsRef = createRefFor("cardOptionsRef")
-        val boxPublicityRef = createRefFor("boxPublicityRef")
-        val topTitleGuide = createGuidelineFromTop(0.1f)
-
-        constrain(textFreeRef){
-            top.linkTo(parent.top)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        }
-        constrain(textTitleRef){
-            top.linkTo(topTitleGuide)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        }
-        constrain(cardLevelRef){
-            top.linkTo(textTitleRef.bottom, margin = 16.dp)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        }
-        constrain(cardMovesRef){
-            top.linkTo(cardLevelRef.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(cardTimeRef.start)
-        }
-        constrain(cardTimeRef){
-            top.linkTo(cardLevelRef.bottom)
-            start.linkTo(cardMovesRef.end)
-            end.linkTo(cardLivesRef.start)
-        }
-        constrain(cardLivesRef){
-            top.linkTo(cardLevelRef.bottom)
-            start.linkTo(cardTimeRef.end)
-            end.linkTo(cardOptionsRef.start)
-        }
-        constrain(cardOptionsRef){
-            top.linkTo(cardLevelRef.bottom)
-            start.linkTo(cardLivesRef.end)
-            end.linkTo(parent.end)
-        }
-        constrain(boxPublicityRef){
-            bottom.linkTo(parent.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        }
-
-    }
-}
 
 @Composable
 fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
@@ -111,20 +56,26 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
 
     val table by horseGameViewModel.table
 
+    val constraints = horseGameViewModel.homeConstraints()
+    ConstraintLayout(constraints){
+        AlertFree(Modifier.layoutId("textFreeRef")){}
 
-//    BoxWithConstraints {
-        val constraints = homeConstraints()
-        ConstraintLayout(constraints){
-            AlertFree(Modifier.layoutId("textFreeRef")){}
-            Title(Modifier.layoutId("textTitleRef"))
-            Level(modifier = Modifier.layoutId("cardLevelRef"), level = 0)
-            Moves(modifier = Modifier.layoutId("cardMovesRef"), moves = 0)
-            Time(modifier = Modifier.layoutId("cardTimeRef"), time = "00:00")
-            Lives(modifier = Modifier.layoutId("cardLivesRef"), lives = 5)
-            Options(modifier = Modifier.layoutId("cardOptionsRef"), options = 0)
-            Publicidad(modifier = Modifier.layoutId("boxPublicityRef"), show = true)
-        }
-//    }
+        Title(Modifier.layoutId("textTitleRef"))
+
+        Level(modifier = Modifier.layoutId("cardLevelRef"), level = 0)
+
+        Moves(modifier = Modifier.layoutId("cardMovesRef"), moves = 0)
+        Time(modifier = Modifier.layoutId("cardTimeRef"), time = "00:00")
+        Lives(modifier = Modifier.layoutId("cardLivesRef"), lives = 5)
+        Options(modifier = Modifier.layoutId("cardOptionsRef"), options = 0)
+
+        Tablero(modifier = Modifier.layoutId("tableRef"), table = table, isAppPremium = false)
+        FinishedGame(modifier = Modifier.layoutId("finishedGameRef"), showFinishedGame = false)
+
+        Credits(modifier = Modifier.layoutId("creditsRef"))
+
+        Publicidad(modifier = Modifier.layoutId("boxPublicityRef"), show = true)
+    }
 
 
     /*Column(modifier = Modifier
@@ -161,15 +112,19 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
 
 @Composable
 fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
-    Text(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.error),
-        text = "Tap here to remove ads, get more levels and unlimited lives",
-        fontFamily = amaranthFamily,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.errorContainer
-    )
+    Box(modifier = modifier
+        .background(MaterialTheme.colorScheme.error)
+        .fillMaxWidth()
+        .padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ){
+        Text(
+            text = "Tap here to remove ads, get more levels and unlimited lives",
+            fontFamily = amaranthFamily,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.errorContainer
+        )
+    }
 
 
     /*
@@ -193,47 +148,6 @@ fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
     //}*/
 }
 
-//@Composable
-//fun Body(
-//    modifier: Modifier,
-//    level: Int,
-//    moves: Int,
-//    time: String,
-//    lives: Int,
-//    options: Int,
-//    table: List<List<ItemModel>>,
-//    showFinishedGame: Boolean,
-//    isAppPremium: Boolean
-//) {
-//    val scrollState = rememberScrollState()
-//    Column(modifier = modifier.verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally){
-//        Title(Modifier.layoutId("textTitleRef"))
-//        Spacer(modifier = Modifier.size(30.dp))
-//
-//        Level(level)
-//        Spacer(modifier = Modifier.size(10.dp))
-//
-//        Row(modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(horizontal = 32.dp)){
-//            Moves(moves, Modifier.weight(1f))
-//            Time(time, Modifier.weight(1f))
-//            Lives(Modifier.weight(1f), lives, isAppPremium)
-//            Options(options, Modifier.weight(1f))
-//        }
-//        Spacer(modifier = Modifier.size(30.dp))
-//
-//        Box(modifier = Modifier.fillMaxWidth()) {
-//            Tablero(table, isAppPremium)
-//            FinishedGame(Modifier.align(Alignment.Center),showFinishedGame)
-//        }
-//        Spacer(modifier = Modifier.size(15.dp))
-//
-//        Credits()
-//    }
-//
-//}
-
 @Composable
 fun Title(modifier: Modifier) {
     Text(
@@ -248,8 +162,8 @@ fun Level(modifier: Modifier, level: Int) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .size(50.dp),
+            .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+            .size(60.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -259,13 +173,13 @@ fun Level(modifier: Modifier, level: Int) {
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyLarge
         )
         Text(
             text = level.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyLarge
         )
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -274,8 +188,8 @@ fun Level(modifier: Modifier, level: Int) {
 fun Moves(moves: Int, modifier: Modifier) {
     Card(
         modifier = modifier
-            .padding(4.dp)
-            .size(50.dp),
+            .width(80.dp)
+            .size(60.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -285,13 +199,13 @@ fun Moves(moves: Int, modifier: Modifier) {
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Text(
             text = moves.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -300,8 +214,8 @@ fun Moves(moves: Int, modifier: Modifier) {
 fun Time(time: String, modifier: Modifier) {
     Card(
         modifier = modifier
-            .padding(4.dp)
-            .size(50.dp),
+            .width(80.dp)
+            .size(60.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -333,8 +247,8 @@ fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean = false) {
 
     Card(
         modifier = modifier
-            .padding(4.dp)
-            .size(50.dp),
+            .width(80.dp)
+            .size(60.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -359,8 +273,8 @@ fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean = false) {
 fun Options(options: Int, modifier: Modifier) {
     Card(
         modifier = modifier
-            .padding(4.dp)
-            .size(50.dp),
+            .width(80.dp)
+            .size(60.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -384,12 +298,14 @@ fun Options(options: Int, modifier: Modifier) {
 }
 
 @Composable
-fun Tablero(table: List<List<ItemModel>>, isAppPremium: Boolean) {
-    Column {
-        table.forEach { fila ->
-            Row(modifier = Modifier.fillMaxWidth()) {
-                fila.forEach { ite ->
-                    ItemTablero(ite,isAppPremium)
+fun Tablero(modifier: Modifier, table: List<List<ItemModel>>, isAppPremium: Boolean) {
+    Box(modifier = modifier){
+        Column {
+            table.forEach { fila ->
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    fila.forEach { item ->
+                        ItemTablero(item,isAppPremium)
+                    }
                 }
             }
         }
@@ -440,7 +356,7 @@ fun FinishedGame(modifier: Modifier, showFinishedGame: Boolean) {
         Column(modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.onSurfaceVariant)
-            .padding(vertical = 20.dp),
+            ,//.padding(vertical = 20.dp)
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -489,8 +405,10 @@ fun ShareGame(){
 
 @Composable
 fun Credits(modifier: Modifier){
-    Text(text = "Move the horse over board to complete all cells.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
-    Text(text = "Game created by Erich Ezequiel Schnell.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
+    Column(modifier = modifier.padding(top = 8.dp)) {
+        Text(text = "Move the horse over board to complete all cells.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
+        Text(text = "Game created by Erich Ezequiel Schnell.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
+    }
 }
 
 fun getScreenDimensions(context: Context): Pair<Float, Float> {

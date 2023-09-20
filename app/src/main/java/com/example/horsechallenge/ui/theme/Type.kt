@@ -36,6 +36,18 @@ val AppTypography = Typography(
         fontSize = 18.sp,
         letterSpacing = 0.15.sp
     ),
+    bodyLarge = TextStyle(
+        fontFamily = amaranthFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        letterSpacing = 0.5.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = amaranthFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        letterSpacing = 0.5.sp
+    ),
     bodySmall = TextStyle(
         fontFamily = amaranthFamily,
         fontWeight = FontWeight.Normal,

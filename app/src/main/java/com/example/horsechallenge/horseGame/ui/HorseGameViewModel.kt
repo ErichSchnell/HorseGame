@@ -3,6 +3,9 @@ package com.example.horsechallenge.horseGame.ui
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ChainStyle
+import androidx.constraintlayout.compose.ConstraintSet
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -46,6 +49,89 @@ class HorseGameViewModel @Inject constructor(
 
     init {
         inicializarTablero()
+    }
+
+    fun homeConstraints(): ConstraintSet {
+        return ConstraintSet{
+            val textFreeRef = createRefFor("textFreeRef")
+            val textTitleRef = createRefFor("textTitleRef")
+            val cardLevelRef = createRefFor("cardLevelRef")
+            val cardMovesRef = createRefFor("cardMovesRef")
+            val cardTimeRef = createRefFor("cardTimeRef")
+            val cardLivesRef = createRefFor("cardLivesRef")
+            val cardOptionsRef = createRefFor("cardOptionsRef")
+            val tableRef= createRefFor("tableRef")
+            val finishedGameRef= createRefFor("finishedGameRef")
+            val creditsRef= createRefFor("creditsRef")
+            val boxPublicityRef = createRefFor("boxPublicityRef")
+            val topTitleGuide = createGuidelineFromTop(0.08f)
+
+            constrain(textFreeRef){
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+
+            constrain(textTitleRef){
+                top.linkTo(topTitleGuide)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width
+            }
+
+            constrain(cardLevelRef){
+                top.linkTo(textTitleRef.bottom, margin = 16.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+
+            constrain(cardMovesRef){
+                top.linkTo(cardLevelRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(cardTimeRef.start)
+            }
+            constrain(cardTimeRef){
+                top.linkTo(cardLevelRef.bottom)
+                start.linkTo(cardMovesRef.end)
+                end.linkTo(cardLivesRef.start)
+            }
+            constrain(cardLivesRef){
+                top.linkTo(cardLevelRef.bottom)
+                start.linkTo(cardTimeRef.end)
+                end.linkTo(cardOptionsRef.start)
+            }
+            constrain(cardOptionsRef){
+                top.linkTo(cardLevelRef.bottom)
+                start.linkTo(cardLivesRef.end)
+                end.linkTo(parent.end)
+            }
+            createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
+
+            constrain(tableRef){
+                top.linkTo(cardMovesRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(boxPublicityRef.top)
+            }
+            constrain(finishedGameRef){
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(parent.bottom)
+            }
+
+            constrain(creditsRef){
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                top.linkTo(tableRef.bottom)
+            }
+
+            constrain(boxPublicityRef){
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+        }
     }
 
     fun toggleShowAlertFree(state:Boolean) {
