@@ -18,9 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
 ):ViewModel() {
-
-    private val _uiState:StateFlow<GameUiState>
-    val uiState: StateFlow<ItemModel> get() = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(HorseUiState())
+    val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()
 
     private var _isAppPremium = MutableStateFlow<Boolean>(false)
     val isAppPremium: StateFlow<Boolean> = _isAppPremium

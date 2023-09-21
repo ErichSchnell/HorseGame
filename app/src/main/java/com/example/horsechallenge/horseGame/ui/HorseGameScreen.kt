@@ -20,13 +20,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,36 +38,47 @@ import com.example.horsechallenge.ui.theme.amaranthFamily
 
 @Composable
 fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
-
-
-    //val isAppPremium:Boolean by horseGameViewModel.isAppPremium.observeAsState(false)
-
-    val showAlertFree:Boolean by horseGameViewModel.showAlertFree.observeAsState(!isAppPremium)
-    val showFinishedGame:Boolean by horseGameViewModel.showFinishedGame.observeAsState(false)
-
-    val level:Int by horseGameViewModel.level.observeAsState(1)
-    val moves:Int by horseGameViewModel.moves.observeAsState(60)
-    val time:String by horseGameViewModel.time.observeAsState("00:00")
-    val lives:Int by horseGameViewModel.lives.observeAsState(5)
-    val options:Int by horseGameViewModel.options.observeAsState(0)
+    val horseUiState by horseGameViewModel.uiState.collectAsState()
 
     val board by horseGameViewModel.board
 
     val constraints = horseGameViewModel.homeConstraints()
+
     ConstraintLayout(constraints){
         AlertFree(Modifier.layoutId("textFreeRef")){}
 
         Title(Modifier.layoutId("textTitleRef"))
 
-        Level(modifier = Modifier.layoutId("cardLevelRef"), level = 0)
+        Level(modifier = Modifier.layoutId("cardLevelRef"),
+            level = horseUiState.level
+        )
 
-        Moves(modifier = Modifier.layoutId("cardMovesRef"), moves = 0)
-        Time(modifier = Modifier.layoutId("cardTimeRef"), time = "00:00")
-        Lives(modifier = Modifier.layoutId("cardLivesRef"), lives = 5)
-        Options(modifier = Modifier.layoutId("cardOptionsRef"), options = 0)
+        Moves(modifier = Modifier.layoutId("cardMovesRef"),
+            moves = horseUiState.moves
+        )
+        Time(modifier = Modifier.layoutId("cardTimeRef"),
+            time = horseUiState.time
+        )
+        Lives(
+            modifier = Modifier.layoutId("cardLivesRef"),
+            lives = horseUiState.lives,
+            isPremium = horseUiState.isPremium
+        )
+        Options(modifier = Modifier.layoutId("cardOptionsRef"),
+            options = horseUiState.options,
+            progress = horseUiState.optionProgress
+        )
 
         Board(modifier = Modifier.layoutId("tableRef"), board = board, isAppPremium = false)
-        FinishedGame(modifier = Modifier.layoutId("finishedGameRef"), showFinishedGame = false)
+
+        if(horseUiState.isGameOver) {
+            FinishedGame(modifier = Modifier.layoutId("finishedGameRef"),
+                level = horseUiState.level,
+                lives = horseUiState.lives,
+                onClickNextLevel = {},
+                onClickShareGame = {}
+            )
+        }
 
         Credits(modifier = Modifier.layoutId("creditsRef"))
 
@@ -111,11 +123,14 @@ fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
     Box(modifier = modifier
         .background(MaterialTheme.colorScheme.error)
         .fillMaxWidth()
-        .padding(vertical = 4.dp),
+        .padding(vertical = 4.dp)
+        .clickable {
+            onClickAlert()
+        },
         contentAlignment = Alignment.Center
     ){
         Text(
-            text = "Tap here to remove ads, get more levels and unlimited lives",
+            text = stringResource(id = R.string.alert_free),
             fontFamily = amaranthFamily,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.errorContainer
@@ -148,7 +163,7 @@ fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
 fun Title(modifier: Modifier) {
     Text(
         modifier = modifier,
-        text = "Horse Challenge",
+        text = stringResource(id = R.string.title_game),
         style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.primary
     )
@@ -164,7 +179,7 @@ fun Level(modifier: Modifier, level: Int) {
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "Level",
+            text = stringResource(id = R.string.level),
             modifier = Modifier
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
@@ -190,7 +205,7 @@ fun Moves(moves: Int, modifier: Modifier) {
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "Moves",
+            text = stringResource(id = R.string.moves),
             modifier = Modifier
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
@@ -207,7 +222,7 @@ fun Moves(moves: Int, modifier: Modifier) {
     }
 }
 @Composable
-fun Time(time: String, modifier: Modifier) {
+fun Time(modifier: Modifier, time: String) {
     Card(
         modifier = modifier
             .width(80.dp)
@@ -216,7 +231,7 @@ fun Time(time: String, modifier: Modifier) {
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "Time",
+            text = stringResource(id = R.string.time),
             modifier = Modifier
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
@@ -233,9 +248,9 @@ fun Time(time: String, modifier: Modifier) {
     }
 }
 @Composable
-fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean = false) {
+fun Lives(modifier: Modifier, lives: Int, isPremium: Boolean = false) {
     //premiumColor()
-    val cardColor = if (isAppPremium) {
+    val cardColor = if (isPremium) {
         MaterialTheme.colorScheme.tertiary
     } else {
         MaterialTheme.colorScheme.error
@@ -249,7 +264,7 @@ fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean = false) {
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "Lives",
+            text = stringResource(id = R.string.lives),
             modifier = Modifier
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
@@ -266,7 +281,7 @@ fun Lives(modifier: Modifier, lives: Int, isAppPremium: Boolean = false) {
     }
 }
 @Composable
-fun Options(options: Int, modifier: Modifier) {
+fun Options(modifier: Modifier, options: Int, progress:Float) {
     Card(
         modifier = modifier
             .width(80.dp)
@@ -275,14 +290,14 @@ fun Options(options: Int, modifier: Modifier) {
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "Options",
+            text = stringResource(id = R.string.options),
             modifier = Modifier
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodySmall
         )
-        LinearProgressIndicator(progress = 0.5f)
+        LinearProgressIndicator(progress = progress)
         Text(
             text = options.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -347,63 +362,70 @@ fun ItemTablero(itemModel: ItemModel, isAppPremium: Boolean){//, onClickItem:()-
 
 
 @Composable
-fun FinishedGame(modifier: Modifier, showFinishedGame: Boolean) {
-    if(showFinishedGame){
-        Column(modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.onSurfaceVariant)
-            ,//.padding(vertical = 20.dp)
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Level: 1",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Text(
-                text = "Lives: 1",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Row(verticalAlignment = Alignment.CenterVertically){
-                NextLevel()
-                ShareGame()
-            }
+fun FinishedGame(
+    modifier: Modifier,
+    level:Int, lives:Int,
+    onClickNextLevel:() -> Unit,
+    onClickShareGame:() -> Unit
+) {
+    Column(modifier = modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.onSurfaceVariant),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.game_over_level, level),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.size(10.dp))
+        Text(
+            text = stringResource(R.string.game_over_lives, lives),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.size(10.dp))
+        Row(verticalAlignment = Alignment.CenterVertically){
+            NextLevel(onClickNextLevel)
+            ShareGame(onClickShareGame)
         }
     }
 }
 @Composable
-fun NextLevel(){
+fun NextLevel(onClickNextLevel: () -> Unit) {
     Button(
         modifier = Modifier
             .padding(20.dp),
-        onClick = {
-
-        }
+        onClick = {onClickNextLevel()}
     ) {
         Text(
-            text = "Next Level",
+            text = stringResource(id = R.string.next_level),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.background
         )
     }
 }
 @Composable
-fun ShareGame(){
+fun ShareGame(onClickShareGame: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
     ){
-        Icon(modifier = Modifier.padding(10.dp),imageVector = Icons.Default.Share, contentDescription = "ic_Share", tint = MaterialTheme.colorScheme.background)
+        Icon(
+            modifier = Modifier
+                .padding(10.dp)
+                .clickable { onClickShareGame() },
+            imageVector = Icons.Default.Share,
+            contentDescription = "ic_Share",
+            tint = MaterialTheme.colorScheme.background
+        )
     }
 }
 
 @Composable
 fun Credits(modifier: Modifier){
     Column(modifier = modifier.padding(top = 8.dp)) {
-        Text(text = "Move the horse over board to complete all cells.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
-        Text(text = "Game created by Erich Ezequiel Schnell.", fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
+        Text(text = stringResource(id = R.string.instructions), fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
+        Text(text = stringResource(id = R.string.credits), fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
     }
 }
 
