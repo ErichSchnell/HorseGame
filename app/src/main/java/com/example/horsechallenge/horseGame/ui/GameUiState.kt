@@ -1,20 +1,23 @@
 package com.example.horsechallenge.horseGame.ui
 
+import androidx.compose.runtime.MutableState
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 
 data class HorseUiState(
-    val isPremium: Boolean = false,
+    var isPremium: Boolean = false,
 
-    val level:Int = 1,
-    val moves:Int = 60,
-    val time:String = "00:00",
-    val lives:Int = 5,
-    val options:Int = 0,
-    val optionProgress:Float = 0.0f,
+    var level:Int = 1,
+    var moves:Int = 64,
+    var time:String = "00:00",
+    var lives:Int = 5,
+    var options:Int = 0,
+    var optionProgress:Float = 0.0f,
+    var bonus: Int = 0,
 
-    val isGameOver: Boolean = false,
+    var isGameOver: Boolean = false,
+    var gameFinishedTitle: String = "",
+    var Score: Int = 0,
 
-    val board: List<List<ItemModel>> = emptyList(),
-
-    val boxrefreshScreen: Boolean = false,
+    var board: MutableList<MutableList<ItemModel>> = mutableListOf(),
+    var boxrefreshScreen: Boolean = false,
 )

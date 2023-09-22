@@ -38,7 +38,12 @@ class HorseGameViewModel @Inject constructor(
         tableAux[lastX.value][lastY.value].boxState = 1
         tableAux[lastX.value][lastY.value].background = Color(0xFF0DFCFC)
 
-        update_uiState(board = tableAux)
+        update_uiState(
+            board = tableAux,
+            moves = 64,
+            time = "00:00",
+            bonus = 0
+        )
         checkBoxsAvailable()
     }
 
@@ -145,7 +150,7 @@ class HorseGameViewModel @Inject constructor(
             saveLastCoordSelected(itemModel.x,itemModel.y)
             update_uiState(
                 board = boardMutable,
-                //moves = _uiState.value.moves.dec()
+                moves = _uiState.value.moves.dec()
             )
             checkBoxsAvailable()
 
@@ -212,8 +217,12 @@ class HorseGameViewModel @Inject constructor(
         checkMove(1,2)
         checkMove(1,-2)
 
-        if(_uiState.value.options == 0) update_uiState(isGameOver = true)
-        else  update_uiState(isGameOver = false)
+        if(_uiState.value.options == 0) {
+            update_uiState(isGameOver = true)
+        }
+        else  {
+            update_uiState(isGameOver = false)
+        }
     }
     private fun checkMove(x: Int, y: Int) {
         val dif_x:Int = lastX.value + x
@@ -265,12 +274,15 @@ class HorseGameViewModel @Inject constructor(
     }
     fun update_uiState(
         isPremium: Boolean = _uiState.value.isPremium,
+
         level:Int = _uiState.value.level,
         moves:Int = _uiState.value.moves,
         time:String = _uiState.value.time,
         lives:Int = _uiState.value.lives,
         options:Int = _uiState.value.options,
         optionProgress:Float = _uiState.value.optionProgress,
+        bonus: Int = _uiState.value.bonus,
+
         isGameOver: Boolean = _uiState.value.isGameOver,
         boxrefreshScreen: Boolean = _uiState.value.boxrefreshScreen,
         board: MutableList<MutableList<ItemModel>> = mutableListOf(),
