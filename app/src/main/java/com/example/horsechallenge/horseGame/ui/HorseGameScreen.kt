@@ -2,7 +2,6 @@ package com.example.horsechallenge.horseGame.ui
 
 import android.content.Context
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.WindowManager
 
 import androidx.compose.foundation.Image
@@ -87,7 +86,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             FinishedGame(modifier = Modifier.layoutId("finishedGameRef"),
                 level = horseUiState.level,
                 lives = horseUiState.lives,
-                onClickNextLevel = {},
+                onClickNextLevel = {horseGameViewModel.initBoard()},
                 onClickShareGame = {}
             )
         }
@@ -116,27 +115,6 @@ fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
             color = MaterialTheme.colorScheme.errorContainer
         )
     }
-
-
-    /*
-    //if(show){
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.error)
-                .padding(vertical = 8.dp)
-                .clickable {
-                    onClickAlert()
-                }, horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Text(
-                text = "Tap here to remove ads, get more levels and unlimited lives",
-                fontFamily = amaranthFamily,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.errorContainer
-            )
-        }
-    //}*/
 }
 
 @Composable
@@ -298,11 +276,10 @@ fun Board(
         board.forEach { fila ->
             Row(modifier = Modifier.fillMaxWidth()) {
                 fila.forEach { item ->
-                    Log.i("Board: ","brd: $item")
                     ItemTablero(
                         item,
                         item.background,
-                        item.selected,
+                        item.boxState,
                         onClickItem
                     )
                 }
@@ -314,7 +291,7 @@ fun Board(
 fun ItemTablero(
     itemModel: ItemModel,
     backgroundAux: Color,
-    selectedAux: Boolean,
+    boxState: Int,
     onClickItem: (ItemModel) -> Unit
 ){
     val (width, _) = getScreenDimensions(LocalContext.current)
@@ -329,7 +306,7 @@ fun ItemTablero(
                 onClickItem(itemModel)
             }
     ){
-        if(selectedAux){
+        if(boxState == 1){
             Image(
                 modifier = Modifier.align(Alignment.Center),
                 painter = painterResource(id = R.drawable.horse_image),
