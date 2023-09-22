@@ -1,18 +1,17 @@
 package com.example.horsechallenge.horseGame.ui
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintSet
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,32 +20,8 @@ class HorseGameViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HorseUiState())
     val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()
 
-    private var _isAppPremium = MutableStateFlow<Boolean>(false)
-    val isAppPremium: StateFlow<Boolean> = _isAppPremium
-
-    private var _showFinishedGame = MutableLiveData<Boolean>()
-    val showFinishedGame: LiveData<Boolean> = _showFinishedGame
-
-    private var _showAlertFree = MutableLiveData<Boolean>()
-    val showAlertFree: LiveData<Boolean> = _showAlertFree
-
-    private var _level = MutableLiveData<Int>()
-    val level: LiveData<Int> = _level
-
-    private var _moves = MutableLiveData<Int>()
-    val moves: LiveData<Int> = _moves
-
-    private var _time = MutableLiveData<String>()
-    val time: LiveData<String> = _time
-
-    private var _lives = MutableLiveData<Int>()
-    val lives: LiveData<Int> = _lives
-
-    private var _options = MutableLiveData<Int>()
-    val options: LiveData<Int> = _options
-
-    private var _board = mutableStateOf<List<List<ItemModel>>>(emptyList())
-    val board: MutableState<List<List<ItemModel>>> = _board
+    private val lastX = mutableStateOf(0)
+    private val lastY = mutableStateOf(0)
 
     init {
         initBoard()
@@ -134,70 +109,84 @@ class HorseGameViewModel @Inject constructor(
         }
     }
 
-    fun toggleShowAlertFree(state:Boolean) {
-        _showAlertFree.value = !state
+    fun togglePremium() {
+        _uiState.update { horseGame ->
+            horseGame.copy(isPremium = !_uiState.value.isPremium)
+        }
+        //updateBoard()
     }
 
-    fun togglePremium(appPremium: Boolean) {
-        _isAppPremium.value = !appPremium
-    }
-
-    private fun initBoard(){
+    fun initBoard(){
         val tableAux: MutableList<MutableList<ItemModel>> = mutableListOf()
+
         for (i in 0 until 8){
             val newRow: MutableList<ItemModel> = mutableListOf()
             for (j in 0 until 8){
-                newRow.add(ItemModel(x = i, y = j))
+
+                val colorBox = if ((i+j)%2 == 0){
+                    Color(0xFFE9C866)
+                } else {
+                    if (_uiState.value.isPremium){
+                        Color(0xFF1C6F20)
+                    } else{
+                        Color(0xFFFF9800)
+                    }
+                }
+                newRow.add(ItemModel(x = i, y = j, background = colorBox))
             }
             tableAux.add(newRow)
         }
-        tableAux[(0..7).random()][(0..7).random()].selected = true
-        _board.value = tableAux
+
+        updateLastCoord((0..7).random(),(0..7).random())
+        tableAux[lastX.value][lastY.value] = tableAux[lastX.value][lastY.value].copy(
+            selected = true,
+            enable = false,
+            background = Color(0xFF0DFCFC)
+        )
+        refreshBoxEnable(lastX.value,lastY.value)
+
+        _uiState.value = HorseUiState(board = tableAux)
     }
-    //private var _lastTaskSelected = TaskModel()
-//    fun onAddTaskDialogOpen() {
-//        _showAddTaskDialog.value = true
-//    }
-//    fun onAddTaskDialogClose() {
-//        _showAddTaskDialog.value = false
-//    }
-//    fun onOptionDialogOpen(taskModel: TaskModel) {
-//        _showOptionDialog.value = true
-//        _lastTaskSelected = taskModel
-//    }
-//    fun onOptionDialogClose() {
-//        _showOptionDialog.value = false
-//    }
-//    fun onTasksCreaded(nameTask: String) {
-//        _showAddTaskDialog.value = false
-//        viewModelScope.launch {
-//            addTaskUseCase(TaskModel(task = nameTask))
-//        }
-//    }
 
-//    fun onClickCheckBoxSelected(taskModel: TaskModel) {
-//        viewModelScope.launch {
-//            editTaskUseCase(taskModel.copy(selected = !taskModel.selected))
-//        }
-//    }
-//    fun getActualizarName(): String = _lastTaskSelected.task
-//    fun onEditTaskDialogOpen(taskModel: TaskModel = _lastTaskSelected) {
-//        _showEditDialog.value = true
-//        _lastTaskSelected = taskModel
-//    }
-//    fun onEditTaskDialogClose() {
-//        _showEditDialog.value = false
-//    }
-//    fun onUpdateNameTaks(name:String){
-//        _showEditDialog.value = false
-//        viewModelScope.launch {
-//            editTaskUseCase(_lastTaskSelected.copy(task = name))
-//        }
-//    }
+    fun onSelectedItem(itemModel: ItemModel) {
+        if(itemModel.enable){
 
-//    fun onClickDeleteTask(taskModel: TaskModel = _lastTaskSelected) {
-//        viewModelScope.launch {
-//            deleteTaskUseCase(taskModel)
-//        }
-//    }
+            val boardAuxState: MutableList<MutableList<ItemModel>> = mutableListOf()
+            for (filaOriginal in _uiState.value.board) {
+                val filaMutable: MutableList<ItemModel> = filaOriginal.toMutableList()
+                boardAuxState.add(filaMutable)
+            }
+            boardAuxState[lastX.value][lastY.value].background = Color(0xFFB6B6B6)
+
+            boardAuxState[itemModel.x][itemModel.y] = boardAuxState[itemModel.x][itemModel.y].copy(
+                selected = !itemModel.selected,
+                enable = !itemModel.enable,
+                background = Color(0xFF0DFCFC)
+            )
+
+            updateLastCoord(itemModel.x,itemModel.y)
+            _uiState.update { boardAux ->
+                boardAux.copy(board = boardAuxState)
+            }
+        }
+        toggleBoxRefreshScreen()
+    }
+
+    fun toggleBoxRefreshScreen(){
+        _uiState.update { box ->
+            box.copy(boxrefreshScreen = !_uiState.value.boxrefreshScreen)
+        }
+    }
+
+    fun updateLastCoord(x: Int, y: Int){
+        lastX.value = x
+        lastY.value = y
+    }
+
+    fun refreshBoxEnable(x: Int, y: Int){
+        val difX = x
+        val difY = y
+
+
+    }
 }

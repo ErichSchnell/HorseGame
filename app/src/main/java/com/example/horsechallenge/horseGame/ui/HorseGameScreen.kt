@@ -2,6 +2,7 @@ package com.example.horsechallenge.horseGame.ui
 
 import android.content.Context
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.WindowManager
 
 import androidx.compose.foundation.Image
@@ -24,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -38,14 +40,20 @@ import com.example.horsechallenge.ui.theme.amaranthFamily
 
 @Composable
 fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
+
+
+
     val horseUiState by horseGameViewModel.uiState.collectAsState()
-
-    val board by horseGameViewModel.board
-
     val constraints = horseGameViewModel.homeConstraints()
 
     ConstraintLayout(constraints){
-        AlertFree(Modifier.layoutId("textFreeRef")){}
+        AlertFree(Modifier.layoutId("textFreeRef")){
+            horseGameViewModel.togglePremium()
+        }
+
+        if(!horseUiState.isPremium) {
+            Publicidad(modifier = Modifier.layoutId("boxPublicityRef"))
+        }
 
         Title(Modifier.layoutId("textTitleRef"))
 
@@ -69,7 +77,11 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             progress = horseUiState.optionProgress
         )
 
-        Board(modifier = Modifier.layoutId("tableRef"), board = board, isAppPremium = false)
+        Board(
+            modifier = Modifier.layoutId("tableRef"),
+            board = horseUiState.board,
+            onClickItem = { horseGameViewModel.onSelectedItem(it)}
+        )
 
         if(horseUiState.isGameOver) {
             FinishedGame(modifier = Modifier.layoutId("finishedGameRef"),
@@ -82,41 +94,9 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
 
         Credits(modifier = Modifier.layoutId("creditsRef"))
 
-        Publicidad(modifier = Modifier.layoutId("boxPublicityRef"), show = true)
+        if (horseUiState.boxrefreshScreen){Box(){}}
     }
-
-
-    /*Column(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.Bottom
-    ){
-        AlertFree(
-            show = showAlertFree,
-        ) {
-            horseGameViewModel.toggleShowAlertFree(showAlertFree)
-            horseGameViewModel.togglePremium(isAppPremium)
-        }
-
-        Body(
-            Modifier.weight(1f),
-            level = level,
-            moves = moves,
-            time = time,
-            lives = lives,
-            options = options,
-            table = table,
-            isAppPremium = isAppPremium,
-            showFinishedGame = showFinishedGame
-        )
-        Publicidad(
-            show = showAlertFree
-        )
-
-    }*/
 }
-
-
 
 @Composable
 fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
@@ -309,48 +289,47 @@ fun Options(modifier: Modifier, options: Int, progress:Float) {
 }
 
 @Composable
-fun Board(modifier: Modifier, board: List<List<ItemModel>>, isAppPremium: Boolean) {
-    Box(modifier = modifier){
-        Column {
-            board.forEach { fila ->
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    fila.forEach { item ->
-                        ItemTablero(item,isAppPremium)
-                    }
+fun Board(
+    modifier: Modifier,
+    board: List<List<ItemModel>>,
+    onClickItem:(ItemModel) -> Unit
+) {
+     Column(modifier = modifier) {
+        board.forEach { fila ->
+            Row(modifier = Modifier.fillMaxWidth()) {
+                fila.forEach { item ->
+                    Log.i("Board: ","brd: $item")
+                    ItemTablero(
+                        item,
+                        item.background,
+                        item.selected,
+                        onClickItem
+                    )
                 }
             }
         }
     }
 }
 @Composable
-fun ItemTablero(itemModel: ItemModel, isAppPremium: Boolean){//, onClickItem:()->Unit
+fun ItemTablero(
+    itemModel: ItemModel,
+    backgroundAux: Color,
+    selectedAux: Boolean,
+    onClickItem: (ItemModel) -> Unit
+){
     val (width, _) = getScreenDimensions(LocalContext.current)
     val sizeBox = width/8
-
-    itemModel.background = if ((itemModel.x+itemModel.y)%2 == 0){
-        MaterialTheme.colorScheme.secondaryContainer
-    } else {
-        if (isAppPremium){
-            MaterialTheme.colorScheme.tertiary
-        } else{
-            MaterialTheme.colorScheme.secondary
-        }
-
-    }
 
     Box(
         modifier = Modifier
             .width(sizeBox.dp)
             .height(sizeBox.dp)
-            .background(itemModel.background)
+            .background(backgroundAux)
             .clickable {
-                //onClickItem()
-                if (itemModel.enable) {
-                    itemModel.selected = !itemModel.selected
-                }
+                onClickItem(itemModel)
             }
     ){
-        if(itemModel.selected){
+        if(selectedAux){
             Image(
                 modifier = Modifier.align(Alignment.Center),
                 painter = painterResource(id = R.drawable.horse_image),
@@ -441,13 +420,11 @@ fun getScreenDimensions(context: Context): Pair<Float, Float> {
 }
 
 @Composable
-fun Publicidad(modifier: Modifier, show: Boolean) {
-    if(show){
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .size(170.dp)
-                .background(MaterialTheme.colorScheme.error)
-        )
-    }
+fun Publicidad(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .size(140.dp)
+            .background(MaterialTheme.colorScheme.error)
+    )
 }

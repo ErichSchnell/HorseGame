@@ -12,5 +12,9 @@ data class HorseUiState(
     val options:Int = 0,
     val optionProgress:Float = 0.0f,
 
-    val isGameOver: Boolean = false
+    val isGameOver: Boolean = false,
+
+    val board: List<List<ItemModel>> = emptyList(),
+
+    val boxrefreshScreen: Boolean = false,
 )
