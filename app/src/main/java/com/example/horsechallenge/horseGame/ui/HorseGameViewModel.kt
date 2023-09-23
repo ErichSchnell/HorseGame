@@ -7,6 +7,10 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.lifecycle.ViewModel
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
+import com.example.horsechallenge.ui.theme.md_theme_box_bonus
+import com.example.horsechallenge.ui.theme.md_theme_box_habilted
+import com.example.horsechallenge.ui.theme.md_theme_box_selected
+import com.example.horsechallenge.ui.theme.md_theme_box_selected_bf
 import com.example.horsechallenge.ui.theme.md_theme_light_onSecondary
 import com.example.horsechallenge.ui.theme.md_theme_light_secondary
 import com.example.horsechallenge.ui.theme.md_theme_light_tertiary
@@ -20,6 +24,12 @@ import javax.inject.Inject
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
 ):ViewModel() {
+    private val c_SIN_SELECCIONAR = 0
+    private val c_SELECCIONADO = 1
+    private val c_SELECCIONADO_PREVIAMENTE = 2
+    private val c_HABILITADO = 3
+    private val c_BONUS = 4
+
     private val _uiState = MutableStateFlow(HorseUiState())
     val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()
 
@@ -36,13 +46,14 @@ class HorseGameViewModel @Inject constructor(
         lastX.value = (0..7).random()
         lastY.value = (0..7).random()
 
-        _uiState.updateBoardBoxState(lastX.value,lastY.value,1)
-        _uiState.updateBoardBackground(lastX.value,lastY.value,Color(0xFF0DFCFC))
+        _uiState.updateBoardBoxState(lastX.value,lastY.value,c_SELECCIONADO_PREVIAMENTE)
+        _uiState.updateBoardBoxState(lastX.value,lastY.value,c_SELECCIONADO)
         _uiState.updateMoves(64)
         _uiState.updateTime("00:00")
         _uiState.updateOptionProgress(0.0f)
         _uiState.updateBonus(0)
         _uiState.updateFinishedGame(false)
+        _uiState.updateBoardAllBackground()
 
         checkBoxsAvailable()
     }
@@ -131,16 +142,19 @@ class HorseGameViewModel @Inject constructor(
 
     fun togglePremium() {
         _uiState.updateIsPremium(!_uiState.value.isPremium)
+        _uiState.updateBoardAllBackground()
+        checkBoxsAvailable()
     }
 
     fun onSelectedItem(itemModel: ItemModel) {
         if(isBoxAvailable(itemModel.x, itemModel.y)){
             cleanBoxAvailable()
 
-            _uiState.updateBoardBackground(lastX.value, lastY.value, Color(0xFFB6B6B6))
-            _uiState.updateBoardBackground(itemModel.x, itemModel.y, Color(0xFF0DFCFC))
+            _uiState.updateBoardBoxState(lastX.value, lastY.value, c_SELECCIONADO_PREVIAMENTE)
+            _uiState.updateBoardBoxState(itemModel.x, itemModel.y, c_SELECCIONADO)
             _uiState.updateBoardBoxState(itemModel.x, itemModel.y, 1)
             _uiState.updateMoves(_uiState.value.moves.dec())
+            _uiState.updateBoardAllBackground()
 
             saveLastCoordSelected(itemModel.x,itemModel.y)
 
@@ -169,7 +183,7 @@ class HorseGameViewModel @Inject constructor(
 
         if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
             if (_uiState.value.board[difX][difY].boxState == 0) {
-                _uiState.updateBoardBackground(difX, difY, getBoxColor(difX,difY))
+                _uiState.updateBoardBoxState(difX, difY,c_SIN_SELECCIONAR)
             }
         }
     }
@@ -231,12 +245,21 @@ class HorseGameViewModel @Inject constructor(
         if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
             if (_uiState.value.board[difX][difY].boxState == 0) {
                 _uiState.updateOptions(_uiState.value.options.inc())
-                _uiState.updateBoardBackground(difX, difY, Color(0xFFCBF897))
+                _uiState.updateBoardBackground(difX, difY, md_theme_box_habilted)
             }
         }
     }
+    private fun getBoxColor(box: ItemModel): Color{
+        return when(box.boxState){
+            c_SELECCIONADO -> {md_theme_box_selected}
+            c_SELECCIONADO_PREVIAMENTE -> {md_theme_box_selected_bf}
+            c_HABILITADO -> {md_theme_box_habilted}
+            c_BONUS -> {md_theme_box_bonus}
 
-    private fun getBoxColor(x: Int, y: Int): Color{
+            else -> { getInitBoxColor(box.x, box.y) }
+        }
+    }
+    private fun getInitBoxColor(x: Int, y: Int): Color{
         return if((x+y)%2 != 0){
             md_theme_light_onSecondary
         } else if (_uiState.value.isPremium){
@@ -251,7 +274,10 @@ class HorseGameViewModel @Inject constructor(
         for (i in 0 until 8){
             val newRow: MutableList<ItemModel> = mutableListOf()
             for (j in 0 until 8){
-                    newRow.add(ItemModel(x = i, y = j, background = getBoxColor(i,j)))
+                    newRow.add(ItemModel(
+                        x = i, y = j,
+                        background = getInitBoxColor(i,j)
+                    ))
             }
             boardAuxState.add(newRow)
         }
@@ -325,5 +351,16 @@ class HorseGameViewModel @Inject constructor(
         this.value.board[x][y] = this.value.board[x][y].copy(
             background = background
         )
+    }
+    private fun  MutableStateFlow<HorseUiState>.updateBoardAllBackground(){
+        this.value.board.forEach{ row ->
+            row.forEach{ box ->
+                if(this.value.board[box.x][box.y].background != getBoxColor(box)){
+                    this.value.board[box.x][box.y] = this.value.board[box.x][box.y].copy(
+                        background = getBoxColor(box)
+                    )
+                }
+            }
+        }
     }
 }

@@ -304,10 +304,17 @@ fun ItemTablero(
                 onClickItem(itemModel)
             }
     ){
-        if(boxState == 1){
+        if(boxState == 1 || boxState == 2){
             Image(
                 modifier = Modifier.align(Alignment.Center),
                 painter = painterResource(id = R.drawable.horse_image),
+                contentDescription = "im_horse"
+            )
+        }
+        if(boxState == 3){
+            Image(
+                modifier = Modifier.align(Alignment.Center),
+                painter = painterResource(id = android.R.drawable.alert_dark_frame),
                 contentDescription = "im_horse"
             )
         }
