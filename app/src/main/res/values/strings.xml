@@ -10,8 +10,9 @@
     <string name="instructions">Move the horse over board to complete all cells.</string>
     <string name="credits">Game created by Erich Ezequiel Schnell.</string>
 
-    <string name="game_over_level">Level: %d</string>
-    <string name="game_over_lives">Lives: %d</string>
-    <string name="next_level">Next Level</string>
+    <string name="winner">Winner</string>
+    <string name="game_over">Game Over</string>
+    <string name="score">Score: %d</string>
+    <string name="next_level">Play Again</string>
 
 </resources>

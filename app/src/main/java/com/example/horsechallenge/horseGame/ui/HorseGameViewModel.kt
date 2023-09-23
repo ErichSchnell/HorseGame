@@ -30,15 +30,20 @@ class HorseGameViewModel @Inject constructor(
         initBoard()
     }
     fun initBoard(){
-        val tableAux = getBoardMutable(true)
+
+        _uiState.updateBoard(getBoardMutable())
 
         lastX.value = (0..7).random()
         lastY.value = (0..7).random()
 
-        tableAux[lastX.value][lastY.value].boxState = 1
-        tableAux[lastX.value][lastY.value].background = Color(0xFF0DFCFC)
+        _uiState.updateBoardBoxState(lastX.value,lastY.value,1)
+        _uiState.updateBoardBackground(lastX.value,lastY.value,Color(0xFF0DFCFC))
+        _uiState.updateMoves(64)
+        _uiState.updateTime("00:00")
+        _uiState.updateOptionProgress(0.0f)
+        _uiState.updateBonus(0)
+        _uiState.updateFinishedGame(false)
 
-        update_uiState(board = tableAux)
         checkBoxsAvailable()
     }
 
@@ -99,10 +104,9 @@ class HorseGameViewModel @Inject constructor(
             createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
 
             constrain(tableRef){
-                top.linkTo(cardMovesRef.bottom)
+                top.linkTo(cardMovesRef.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                bottom.linkTo(boxPublicityRef.top)
             }
             constrain(finishedGameRef){
                 top.linkTo(parent.top)
@@ -126,32 +130,28 @@ class HorseGameViewModel @Inject constructor(
     }
 
     fun togglePremium() {
-        update_uiState(isPremium = !_uiState.value.isPremium)
-        updateBackgroundBoard()
-    }
-    fun updateBackgroundBoard(){
-
+        _uiState.updateIsPremium(!_uiState.value.isPremium)
     }
 
     fun onSelectedItem(itemModel: ItemModel) {
         if(isBoxAvailable(itemModel.x, itemModel.y)){
-
             cleanBoxAvailable()
-            val boardMutable = getBoardMutable()
-            boardMutable[lastX.value][lastY.value].background = Color(0xFFB6B6B6)
-            boardMutable[itemModel.x][itemModel.y].boxState = 1
-            boardMutable[itemModel.x][itemModel.y].background = Color(0xFF0DFCFC)
+
+            _uiState.updateBoardBackground(lastX.value, lastY.value, Color(0xFFB6B6B6))
+            _uiState.updateBoardBackground(itemModel.x, itemModel.y, Color(0xFF0DFCFC))
+            _uiState.updateBoardBoxState(itemModel.x, itemModel.y, 1)
+            _uiState.updateMoves(_uiState.value.moves.dec())
 
             saveLastCoordSelected(itemModel.x,itemModel.y)
-            update_uiState(
-                board = boardMutable,
-                //moves = _uiState.value.moves.dec()
-            )
-            checkBoxsAvailable()
 
-            toggleBoxRefreshScreen()
+//            checkBonus()
+            checkBoxsAvailable()
         }
     }
+
+//    private fun checkBonus() {
+//
+//    }
 
     private fun cleanBoxAvailable() {
         cleanBox(-2,-1)
@@ -164,44 +164,40 @@ class HorseGameViewModel @Inject constructor(
         cleanBox(1,-2)
     }
     private fun cleanBox(x: Int, y: Int) {
-        val dif_x:Int = lastX.value + x
-        val dif_y:Int = lastY.value + y
+        val difX:Int = lastX.value + x
+        val difY:Int = lastY.value + y
 
-        if(dif_x >= 0 && dif_y >= 0 && dif_x <= 7 && dif_y <= 7){
-            if (_uiState.value.board[dif_x][dif_y].boxState == 0) {
-                val boardMutable = getBoardMutable()
-                boardMutable[dif_x][dif_y].background = getBoxColor(dif_x,dif_y)
-
-                update_uiState(board = boardMutable)
+        if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
+            if (_uiState.value.board[difX][difY].boxState == 0) {
+                _uiState.updateBoardBackground(difX, difY, getBoxColor(difX,difY))
             }
         }
     }
 
-    fun saveLastCoordSelected(x: Int, y: Int){
+    private fun saveLastCoordSelected(x: Int, y: Int){
         lastX.value = x
         lastY.value = y
     }
 
-    fun isBoxAvailable(x: Int, y: Int): Boolean{
+    private fun isBoxAvailable(x: Int, y: Int): Boolean{
 
-        val dif_x:Int = x - lastX.value
-        val dif_y:Int = y - lastY.value
+        val difX:Int = x - lastX.value
+        val difY:Int = y - lastY.value
 
         if(_uiState.value.board[x][y].boxState == 1) return false
 
-        if ( dif_x == -2 && dif_y == -1 )   return true
-        if ( dif_x == -2 && dif_y == 1  )   return true
-        if ( dif_x == 2  && dif_y == -1 )   return true
-        if ( dif_x == 2  && dif_y == 1  )   return true
-        if ( dif_x == -1 && dif_y == -2 )   return true
-        if ( dif_x == -1 && dif_y == 2  )   return true
-        if ( dif_x == 1  && dif_y == -2 )   return true
-        if ( dif_x == 1  && dif_y == 2  )   return true
-
+        if ( difX == -2 && difY == -1 )   return true
+        if ( difX == -2 && difY == 1  )   return true
+        if ( difX == 2  && difY == -1 )   return true
+        if ( difX == 2  && difY == 1  )   return true
+        if ( difX == -1 && difY == -2 )   return true
+        if ( difX == -1 && difY == 2  )   return true
+        if ( difX == 1  && difY == -2 )   return true
+        if ( difX == 1  && difY == 2  )   return true
         return false
     }
-    fun checkBoxsAvailable(){
-        update_uiState(options = 0)
+    private fun checkBoxsAvailable(){
+        _uiState.updateOptions(0)
 
         checkMove(-2,-1)
         checkMove(-2,1)
@@ -212,29 +208,35 @@ class HorseGameViewModel @Inject constructor(
         checkMove(1,2)
         checkMove(1,-2)
 
-        if(_uiState.value.options == 0) update_uiState(isGameOver = true)
-        else  update_uiState(isGameOver = false)
+        checkFinishedGame()
+    }
+
+    private fun checkFinishedGame(){
+        if (_uiState.value.moves > 0){
+            if(_uiState.value.options == 0 && _uiState.value.bonus == 0) {
+                _uiState.updatemessegeGameFinished("Game Over")
+                _uiState.updateIsGameOver(isGameOver = true)
+                _uiState.updateFinishedGame(true)
+            }
+        } else  {
+            _uiState.updatemessegeGameFinished("You're Winner !")
+            _uiState.updateScore(_uiState.value.score + 10)
+            _uiState.updateFinishedGame(true)
+        }
     }
     private fun checkMove(x: Int, y: Int) {
-        val dif_x:Int = lastX.value + x
-        val dif_y:Int = lastY.value + y
+        val difX:Int = lastX.value + x
+        val difY:Int = lastY.value + y
 
-        if(dif_x >= 0 && dif_y >= 0 && dif_x <= 7 && dif_y <= 7){
-            if (_uiState.value.board[dif_x][dif_y].boxState == 0) {
-                val boardMutable = getBoardMutable()
-                boardMutable[dif_x][dif_y].background = Color(0xFFCBF897)
-                update_uiState(board = boardMutable, options = _uiState.value.options.inc())
+        if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
+            if (_uiState.value.board[difX][difY].boxState == 0) {
+                _uiState.updateOptions(_uiState.value.options.inc())
+                _uiState.updateBoardBackground(difX, difY, Color(0xFFCBF897))
             }
         }
     }
 
-    fun toggleBoxRefreshScreen(){
-        _uiState.update { box ->
-            box.copy(boxrefreshScreen = !_uiState.value.boxrefreshScreen)
-        }
-    }
-
-    fun getBoxColor(x: Int,y: Int): Color{
+    private fun getBoxColor(x: Int, y: Int): Color{
         return if((x+y)%2 != 0){
             md_theme_light_onSecondary
         } else if (_uiState.value.isPremium){
@@ -243,56 +245,85 @@ class HorseGameViewModel @Inject constructor(
             md_theme_light_secondary
         }
     }
-    fun getBoardMutable(reset: Boolean = false): MutableList<MutableList<ItemModel>>{
+    private fun getBoardMutable(): MutableList<MutableList<ItemModel>>{
         val boardAuxState: MutableList<MutableList<ItemModel>> = mutableListOf()
 
-        if (_uiState.value.board.isEmpty() || reset){
-            for (i in 0 until 8){
-                val newRow: MutableList<ItemModel> = mutableListOf()
-                for (j in 0 until 8){
-                        newRow.add(ItemModel(x = i, y = j, background = getBoxColor(i,j)))
-                }
-                boardAuxState.add(newRow)
+        for (i in 0 until 8){
+            val newRow: MutableList<ItemModel> = mutableListOf()
+            for (j in 0 until 8){
+                    newRow.add(ItemModel(x = i, y = j, background = getBoxColor(i,j)))
             }
-        } else {
-            for (filaOriginal in _uiState.value.board) {
-                val filaMutable: MutableList<ItemModel> = filaOriginal.toMutableList()
-                boardAuxState.add(filaMutable)
-            }
+            boardAuxState.add(newRow)
         }
 
         return boardAuxState
     }
-    fun update_uiState(
-        isPremium: Boolean = _uiState.value.isPremium,
-        level:Int = _uiState.value.level,
-        moves:Int = _uiState.value.moves,
-        time:String = _uiState.value.time,
-        lives:Int = _uiState.value.lives,
-        options:Int = _uiState.value.options,
-        optionProgress:Float = _uiState.value.optionProgress,
-        isGameOver: Boolean = _uiState.value.isGameOver,
-        boxrefreshScreen: Boolean = _uiState.value.boxrefreshScreen,
-        board: MutableList<MutableList<ItemModel>> = mutableListOf(),
-    ){
-        if (board.isEmpty()){
-            getBoardMutable().forEach{
-                board.add(it)
-            }
+
+
+    /*
+     * ---- FUNCIONES DE ORDEN SUPERIOR SOBRE _uiState ----
+     */
+    private fun  MutableStateFlow<HorseUiState>.updateIsPremium(isPremium: Boolean){
+        this.update {
+            it.copy(isPremium = isPremium)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateLevel(level: Int){
+        this.update {
+            it.copy(level = level)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateMoves(moves: Int){
+        this.update {
+            it.copy(moves = moves)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateTime(time: String){
+        this.update {
+            it.copy(time = time)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateLives(lives: Int){
+        this.update {
+            it.copy(lives = lives)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateOptions(options: Int){
+        this.update {
+            it.copy(options = options)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateOptionProgress(optionProgress: Float){
+        this.update {
+            it.copy(optionProgress = optionProgress)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateBonus(bonus: Int){
+        this.update {
+            it.copy(bonus = bonus)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateScore(score: Int){
+        this.update {
+            it.copy(score = score)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateIsGameOver(isGameOver: Boolean){
+        this.update {
+            it.copy(isGameOver = isGameOver)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateFinishedGame(finishedGame: Boolean){
+        this.update {
+            it.copy(finishedGame = finishedGame)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updatemessegeGameFinished(messegeGameFinished: String){
+        this.update {
+            it.copy(msgGameFinished = messegeGameFinished)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateBoard(board: MutableList<MutableList<ItemModel>>){
+        this.update {
+            it.copy(board = board)
         }
-        _uiState.update { boardAux ->
-            boardAux.copy(
-                isPremium = isPremium,
-                level = level,
-                moves = moves,
-                time = time,
-                lives = lives,
-                options = options,
-                optionProgress = optionProgress,
-                isGameOver = isGameOver,
-                boxrefreshScreen = boxrefreshScreen,
-                board = board
-            )
-        }
+    }
+    private fun  MutableStateFlow<HorseUiState>.updateBoardBoxState(x: Int, y: Int, boxState: Int){
+        this.value.board[x][y] = this.value.board[x][y].copy(
+            boxState = boxState
+        )
+    }
+    private fun  MutableStateFlow<HorseUiState>.updateBoardBackground(x: Int, y: Int, background: Color){
+        this.value.board[x][y] = this.value.board[x][y].copy(
+            background = background
+        )
     }
 }

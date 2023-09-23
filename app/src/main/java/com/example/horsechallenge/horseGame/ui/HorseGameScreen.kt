@@ -82,18 +82,16 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             onClickItem = { horseGameViewModel.onSelectedItem(it)}
         )
 
-        if(horseUiState.isGameOver) {
+        if(horseUiState.finishedGame) {
             FinishedGame(modifier = Modifier.layoutId("finishedGameRef"),
-                level = horseUiState.level,
-                lives = horseUiState.lives,
-                onClickNextLevel = {horseGameViewModel.initBoard()},
-                onClickShareGame = {}
-            )
+                title = horseUiState.msgGameFinished,
+                score = horseUiState.score,
+                onClickNextLevel = {horseGameViewModel.initBoard()}
+            ) {}
         }
 
         Credits(modifier = Modifier.layoutId("creditsRef"))
 
-        if (horseUiState.boxrefreshScreen){Box(){}}
     }
 }
 
@@ -320,7 +318,7 @@ fun ItemTablero(
 @Composable
 fun FinishedGame(
     modifier: Modifier,
-    level:Int, lives:Int,
+    title: String, score:Int,
     onClickNextLevel:() -> Unit,
     onClickShareGame:() -> Unit
 ) {
@@ -330,13 +328,13 @@ fun FinishedGame(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.game_over_level, level),
+            text = title,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.size(10.dp))
         Text(
-            text = stringResource(R.string.game_over_lives, lives),
+            text = stringResource(R.string.score, score),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
         )
