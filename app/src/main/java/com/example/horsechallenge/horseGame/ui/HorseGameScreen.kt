@@ -72,7 +72,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             isPremium = horseUiState.isPremium
         )
         Options(modifier = Modifier.layoutId("cardOptionsRef"),
-            options = horseUiState.options,
+            options = "${horseUiState.options} + ${horseUiState.bonus}" ,
             progress = horseUiState.optionProgress
         )
 
@@ -192,13 +192,13 @@ fun Time(modifier: Modifier, time: String) {
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Text(
             text = time,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -225,19 +225,19 @@ fun Lives(modifier: Modifier, lives: Int, isPremium: Boolean = false) {
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Text(
             text = lives.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.weight(1f))
     }
 }
 @Composable
-fun Options(modifier: Modifier, options: Int, progress:Float) {
+fun Options(modifier: Modifier, options: String, progress:Float) {
     Card(
         modifier = modifier
             .width(80.dp)
@@ -251,14 +251,14 @@ fun Options(modifier: Modifier, options: Int, progress:Float) {
                 .padding(bottom = 4.dp)
                 .align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         LinearProgressIndicator(progress = progress)
         Text(
-            text = options.toString(),
+            text = options,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -313,7 +313,9 @@ fun ItemTablero(
         }
         if(boxState == BONUS){
             Image(
-                modifier = Modifier.align(Alignment.Center).padding(12.dp),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(12.dp),
                 painter = painterResource(id = R.drawable.mangekyou_bonus),
                 contentDescription = "im_bonus"
             )

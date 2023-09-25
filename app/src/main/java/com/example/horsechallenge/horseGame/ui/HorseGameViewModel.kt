@@ -24,7 +24,7 @@ val NO_SELECCIONADO = 0
 val SELECCIONADO = 1
 val BONUS = 2
 
-val MOVES_FOR_BONUS = 4f
+val MOVES_FOR_BONUS = 32f
 
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
@@ -147,10 +147,11 @@ class HorseGameViewModel @Inject constructor(
     }
 
     fun onSelectedItem(itemModel: ItemModel) {
-        if(isBoxAvailable(itemModel.x, itemModel.y)){
+        if(isBoxAvailable(itemModel.x, itemModel.y) || isBonusUsed(itemModel.x,itemModel.y)){
             cleanBoxAvailable()
-
             saveLastCoordSelected(itemModel.x,itemModel.y)
+
+            if(isBoxBonus()) _uiState.updateBonus(_uiState.value.bonus.inc())
 
             _uiState.updateBoardBoxState(itemModel.x, itemModel.y, SELECCIONADO)
             _uiState.updateMoves(_uiState.value.moves.dec())
@@ -160,7 +161,19 @@ class HorseGameViewModel @Inject constructor(
             checkBoxsAvailable()
         }
     }
-
+    private fun isBonusUsed(x: Int, y: Int): Boolean{
+        if(_uiState.value.options == 0){
+            if (_uiState.value.board[x][y].boxState == BONUS
+                || _uiState.value.board[x][y].boxState == NO_SELECCIONADO){
+                _uiState.updateBonus(_uiState.value.bonus.dec())
+                return true
+            }
+        }
+        return false
+    }
+    private fun isBoxBonus(): Boolean{
+        return _uiState.value.board[lastX.value][lastY.value].boxState == BONUS
+    }
     private fun addBoxBonus() {
         val incremento:Float = 1 / MOVES_FOR_BONUS
 
