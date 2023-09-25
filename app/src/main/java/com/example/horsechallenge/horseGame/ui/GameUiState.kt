@@ -6,7 +6,7 @@ data class HorseUiState(
     val isPremium: Boolean = false,
 
     val level:Int = 1,
-    val moves:Int = 64,
+    val moves:Int = 63,
     val time:String = "00:00",
     val lives:Int = 5,
     val options:Int = 0,

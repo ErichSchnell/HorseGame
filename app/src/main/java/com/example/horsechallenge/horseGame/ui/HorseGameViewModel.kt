@@ -24,11 +24,13 @@ import javax.inject.Inject
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
 ):ViewModel() {
-    private val c_SIN_SELECCIONAR = 0
-    private val c_SELECCIONADO = 1
-    private val c_SELECCIONADO_PREVIAMENTE = 2
-    private val c_HABILITADO = 3
-    private val c_BONUS = 4
+    private val SIN_SELECCIONAR = 0
+    private val SELECCIONADO = 1
+    private val SELECCIONADO_PREVIAMENTE = 2
+    private val HABILITADO = 3
+    private val BONUS = 4
+
+    private val MOVES_FOR_BONUS = 4f
 
     private val _uiState = MutableStateFlow(HorseUiState())
     val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()
@@ -46,9 +48,9 @@ class HorseGameViewModel @Inject constructor(
         lastX.value = (0..7).random()
         lastY.value = (0..7).random()
 
-        _uiState.updateBoardBoxState(lastX.value,lastY.value,c_SELECCIONADO_PREVIAMENTE)
-        _uiState.updateBoardBoxState(lastX.value,lastY.value,c_SELECCIONADO)
-        _uiState.updateMoves(64)
+        _uiState.updateBoardBoxState(lastX.value,lastY.value,SELECCIONADO_PREVIAMENTE)
+        _uiState.updateBoardBoxState(lastX.value,lastY.value,SELECCIONADO)
+        _uiState.updateMoves(63)
         _uiState.updateTime("00:00")
         _uiState.updateOptionProgress(0.0f)
         _uiState.updateBonus(0)
@@ -150,22 +152,28 @@ class HorseGameViewModel @Inject constructor(
         if(isBoxAvailable(itemModel.x, itemModel.y)){
             cleanBoxAvailable()
 
-            _uiState.updateBoardBoxState(lastX.value, lastY.value, c_SELECCIONADO_PREVIAMENTE)
-            _uiState.updateBoardBoxState(itemModel.x, itemModel.y, c_SELECCIONADO)
+            _uiState.updateBoardBoxState(lastX.value, lastY.value, SELECCIONADO_PREVIAMENTE)
+            _uiState.updateBoardBoxState(itemModel.x, itemModel.y, SELECCIONADO)
             _uiState.updateBoardBoxState(itemModel.x, itemModel.y, 1)
             _uiState.updateMoves(_uiState.value.moves.dec())
             _uiState.updateBoardAllBackground()
 
             saveLastCoordSelected(itemModel.x,itemModel.y)
 
-//            checkBonus()
+            checkBonus()
             checkBoxsAvailable()
         }
     }
 
-//    private fun checkBonus() {
-//
-//    }
+    private fun checkBonus() {
+        val incremento:Float = 1 / MOVES_FOR_BONUS
+
+        if(_uiState.value.optionProgress >= 1.0f){
+            _uiState.updateOptionProgress(0f)
+        } else {
+            _uiState.updateOptionProgress(_uiState.value.optionProgress + incremento)
+        }
+    }
 
     private fun cleanBoxAvailable() {
         cleanBox(-2,-1)
@@ -183,7 +191,7 @@ class HorseGameViewModel @Inject constructor(
 
         if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
             if (_uiState.value.board[difX][difY].boxState == 0) {
-                _uiState.updateBoardBoxState(difX, difY,c_SIN_SELECCIONAR)
+                _uiState.updateBoardBoxState(difX, difY,SIN_SELECCIONAR)
             }
         }
     }
@@ -251,10 +259,10 @@ class HorseGameViewModel @Inject constructor(
     }
     private fun getBoxColor(box: ItemModel): Color{
         return when(box.boxState){
-            c_SELECCIONADO -> {md_theme_box_selected}
-            c_SELECCIONADO_PREVIAMENTE -> {md_theme_box_selected_bf}
-            c_HABILITADO -> {md_theme_box_habilted}
-            c_BONUS -> {md_theme_box_bonus}
+            SELECCIONADO -> {md_theme_box_selected}
+            SELECCIONADO_PREVIAMENTE -> {md_theme_box_selected_bf}
+            HABILITADO -> {md_theme_box_habilted}
+            BONUS -> {md_theme_box_bonus}
 
             else -> { getInitBoxColor(box.x, box.y) }
         }
