@@ -24,7 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -276,8 +275,6 @@ fun Board(
                 fila.forEach { item ->
                     ItemTablero(
                         item,
-                        item.background,
-                        item.boxState,
                         onClickItem
                     )
                 }
@@ -288,8 +285,6 @@ fun Board(
 @Composable
 fun ItemTablero(
     itemModel: ItemModel,
-    backgroundAux: Color,
-    boxState: Int,
     onClickItem: (ItemModel) -> Unit
 ){
     val (width, _) = getScreenDimensions(LocalContext.current)
@@ -299,24 +294,30 @@ fun ItemTablero(
         modifier = Modifier
             .width(sizeBox.dp)
             .height(sizeBox.dp)
-            .background(backgroundAux)
+            .background(itemModel.background)
             .clickable {
                 onClickItem(itemModel)
             }
     ){
-        if(boxState == SELECCIONADO){
+        if(itemModel.boxState == SELECCIONADO){
             Image(
                 modifier = Modifier.align(Alignment.Center),
-                painter = painterResource(id = R.drawable.horse_image),
+                painter = painterResource(id = R.drawable.iv_horse),
                 contentDescription = "im_horse"
             )
         }
-        if(boxState == BONUS){
+        if(itemModel.boxState == BONUS){
+            Image(
+                modifier = Modifier.align(Alignment.Center).padding(12.dp),
+                painter = painterResource(id = R.drawable.iv_mangekyou_bonus),
+                contentDescription = "im_bonus"
+            )
+        }
+        if(itemModel.hability){
             Image(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(12.dp),
-                painter = painterResource(id = R.drawable.mangekyou_bonus),
+                    .align(Alignment.Center),
+                painter = painterResource(id = R.drawable.iv_box_hability),
                 contentDescription = "im_bonus"
             )
         }

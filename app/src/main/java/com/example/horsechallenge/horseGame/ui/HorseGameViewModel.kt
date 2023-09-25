@@ -23,8 +23,9 @@ import javax.inject.Inject
 val NO_SELECCIONADO = 0
 val SELECCIONADO = 1
 val BONUS = 2
+val HABILITADO = 3
 
-val MOVES_FOR_BONUS = 32f
+val MOVES_FOR_BONUS = 2f
 
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
@@ -120,10 +121,10 @@ class HorseGameViewModel @Inject constructor(
                 end.linkTo(parent.end)
             }
             constrain(finishedGameRef){
-                top.linkTo(parent.top)
+                top.linkTo(tableRef.top)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
+                bottom.linkTo(tableRef.bottom)
             }
 
             constrain(creditsRef){
@@ -148,7 +149,8 @@ class HorseGameViewModel @Inject constructor(
 
     fun onSelectedItem(itemModel: ItemModel) {
         if(isBoxAvailable(itemModel.x, itemModel.y) || isBonusUsed(itemModel.x,itemModel.y)){
-            cleanBoxAvailable()
+            setHabilityBoxesFree(false)
+
             saveLastCoordSelected(itemModel.x,itemModel.y)
 
             if(isBoxBonus()) _uiState.updateBonus(_uiState.value.bonus.inc())
@@ -207,27 +209,27 @@ class HorseGameViewModel @Inject constructor(
         }
     }
 
-    private fun cleanBoxAvailable() {
-        cleanBox(-2,-1)
-        cleanBox(-2,1)
-        cleanBox(2,-1)
-        cleanBox(2,1)
-        cleanBox(-1,2)
-        cleanBox(-1,-2)
-        cleanBox(1,2)
-        cleanBox(1,-2)
-    }
-    private fun cleanBox(x: Int, y: Int) {
-        val difX:Int = lastX.value + x
-        val difY:Int = lastY.value + y
-
-        if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
-            if (_uiState.value.board[difX][difY].boxState == NO_SELECCIONADO
-                || _uiState.value.board[difX][difY].boxState == BONUS) {
-                _uiState.updateBoardBackground(difX, difY, getInitBoxColor(difX,difY))
-            }
-        }
-    }
+//    private fun cleanBoxAvailable() {
+//        cleanBox(-2,-1)
+//        cleanBox(-2,1)
+//        cleanBox(2,-1)
+//        cleanBox(2,1)
+//        cleanBox(-1,2)
+//        cleanBox(-1,-2)
+//        cleanBox(1,2)
+//        cleanBox(1,-2)
+//    }
+//    private fun cleanBox(x: Int, y: Int) {
+//        val difX:Int = lastX.value + x
+//        val difY:Int = lastY.value + y
+//
+//        if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
+//            if (_uiState.value.board[difX][difY].boxState == NO_SELECCIONADO
+//                || _uiState.value.board[difX][difY].boxState == BONUS) {
+//                _uiState.updateBoardHability(difX, difY, false)
+//            }
+//        }
+//    }
 
     private fun saveLastCoordSelected(x: Int, y: Int){
         lastX.value = x
@@ -273,7 +275,7 @@ class HorseGameViewModel @Inject constructor(
             if (_uiState.value.board[difX][difY].boxState == NO_SELECCIONADO
                 || _uiState.value.board[difX][difY].boxState == BONUS) {
                 _uiState.updateOptions(_uiState.value.options.inc())
-                _uiState.updateBoardBackground(difX, difY, md_theme_box_habilted)
+                _uiState.updateBoardHability(difX, difY, true)
             }
         }
     }
@@ -283,6 +285,8 @@ class HorseGameViewModel @Inject constructor(
                 _uiState.updatemessegeGameFinished("Game Over")
                 _uiState.updateIsGameOver(isGameOver = true)
                 _uiState.updateFinishedGame(true)
+            } else if(_uiState.value.options == 0){
+                setHabilityBoxesFree(true)
             }
         } else  {
             _uiState.updatemessegeGameFinished("You're Winner !")
@@ -290,6 +294,17 @@ class HorseGameViewModel @Inject constructor(
             _uiState.updateFinishedGame(true)
         }
     }
+
+    private fun setHabilityBoxesFree(state: Boolean) {
+        _uiState.value.board.forEach { row ->
+            row.forEach {
+                if(it.boxState == NO_SELECCIONADO || it.boxState == BONUS){
+                    _uiState.updateBoardHability(it.x,it.y,state)
+                }
+            }
+        }
+    }
+
     private fun getBoxColor(box: ItemModel): Color{
         return if(box.boxState == SELECCIONADO){
             if(box.x == lastX.value && box.y == lastY.value){
@@ -385,6 +400,11 @@ class HorseGameViewModel @Inject constructor(
     private fun  MutableStateFlow<HorseUiState>.updateBoardBoxState(x: Int, y: Int, boxState: Int){
         this.value.board[x][y] = this.value.board[x][y].copy(
             boxState = boxState
+        )
+    }
+    private fun  MutableStateFlow<HorseUiState>.updateBoardHability(x: Int, y: Int, hability: Boolean){
+        this.value.board[x][y] = this.value.board[x][y].copy(
+            hability = hability
         )
     }
     private fun  MutableStateFlow<HorseUiState>.updateBoardBackground(x: Int, y: Int, background: Color){
