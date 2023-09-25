@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.util.Objects
+import java.util.logging.Handler
 import javax.inject.Inject
 
 val NO_SELECCIONADO = 0
@@ -38,8 +40,31 @@ class HorseGameViewModel @Inject constructor(
     private val lastX = mutableStateOf(0)
     private val lastY = mutableStateOf(0)
 
+    private val nHandler: Handler? = null
+    private val timeSeconds = 0
+    private val chronometer: Runnable = Runnable {
+        try {
+            timeSeconds++
+        } finally {
+            nHandler.
+        }
+    }
+
     init {
         initBoard()
+    }
+
+    private fun startTime(){
+
+    }
+    private fun resetTime(){
+
+    }
+    fun startGame(){
+        resetTime()
+        startTime()
+//        resetBoard()
+//        setFirtPosition()
     }
     fun initBoard(){
 
@@ -198,9 +223,9 @@ class HorseGameViewModel @Inject constructor(
             }
         }
 
-        val countAvailable = coodAvailable.size
+        val countAvailable = coodAvailable.count()
         if (countAvailable > 0){
-            val boxRandom = (1..countAvailable).random()
+            val boxRandom = (1..countAvailable).random()-1
             _uiState.updateBoardBoxState(
                 coodAvailable[boxRandom][0],
                 coodAvailable[boxRandom][1],
@@ -208,28 +233,6 @@ class HorseGameViewModel @Inject constructor(
             )
         }
     }
-
-//    private fun cleanBoxAvailable() {
-//        cleanBox(-2,-1)
-//        cleanBox(-2,1)
-//        cleanBox(2,-1)
-//        cleanBox(2,1)
-//        cleanBox(-1,2)
-//        cleanBox(-1,-2)
-//        cleanBox(1,2)
-//        cleanBox(1,-2)
-//    }
-//    private fun cleanBox(x: Int, y: Int) {
-//        val difX:Int = lastX.value + x
-//        val difY:Int = lastY.value + y
-//
-//        if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
-//            if (_uiState.value.board[difX][difY].boxState == NO_SELECCIONADO
-//                || _uiState.value.board[difX][difY].boxState == BONUS) {
-//                _uiState.updateBoardHability(difX, difY, false)
-//            }
-//        }
-//    }
 
     private fun saveLastCoordSelected(x: Int, y: Int){
         lastX.value = x
