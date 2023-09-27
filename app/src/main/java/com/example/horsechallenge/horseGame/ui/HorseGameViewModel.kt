@@ -24,7 +24,7 @@ val SELECCIONADO = 1
 val BONUS = 2
 val HABILITADO = 3
 
-val MOVES_FOR_BONUS = 33f
+val MOVES_FOR_BONUS = 3f//3f
 
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
@@ -53,6 +53,7 @@ class HorseGameViewModel @Inject constructor(
                     if(minutes%60 == 0){
                         minutes = 0
                         finishGame("Timeout :(", 0, true)
+                        return
                     }
                 }
             }
@@ -203,10 +204,10 @@ class HorseGameViewModel @Inject constructor(
 
             saveLastCoordSelected(itemModel.x,itemModel.y)
 
-            if(isBoxBonus()) _uiState.updateBonus(_uiState.value.bonus.inc())
+            if(isBoxBonus()) _uiState.updateBonus(_uiState.value.bonus + 1)
 
             _uiState.updateBoardBoxState(itemModel.x, itemModel.y, SELECCIONADO)
-            _uiState.updateMoves(_uiState.value.moves.dec())
+            _uiState.updateMoves(_uiState.value.movesRemaining.dec())
             _uiState.updateBoardAllBackground()
 
             addBoxBonus()
@@ -217,7 +218,7 @@ class HorseGameViewModel @Inject constructor(
         if(_uiState.value.options == 0){
             if (_uiState.value.board[x][y].boxState == BONUS
                 || _uiState.value.board[x][y].boxState == NO_SELECCIONADO){
-                _uiState.updateBonus(_uiState.value.bonus.dec())
+                _uiState.updateBonus(_uiState.value.bonus - 1)
                 return true
             }
         }
@@ -302,13 +303,13 @@ class HorseGameViewModel @Inject constructor(
         if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
             if (_uiState.value.board[difX][difY].boxState == NO_SELECCIONADO
                 || _uiState.value.board[difX][difY].boxState == BONUS) {
-                _uiState.updateOptions(_uiState.value.options.inc())
+                _uiState.updateOptions(_uiState.value.options + 1)
                 _uiState.updateBoardHability(difX, difY, true)
             }
         }
     }
     private fun checkFinishedGame(){
-        if (_uiState.value.moves > 0){
+        if (_uiState.value.movesRemaining > 0){
             if(_uiState.value.options == 0 && _uiState.value.bonus == 0) {
                 finishGame("Game Over",0,true)
             } else if(_uiState.value.options == 0){
@@ -378,7 +379,7 @@ class HorseGameViewModel @Inject constructor(
         }}
     private fun  MutableStateFlow<HorseUiState>.updateMoves(moves: Int){
         this.update {
-            it.copy(moves = moves)
+            it.copy(movesRemaining = moves)
         }}
     private fun  MutableStateFlow<HorseUiState>.updateTime(minutes:Int, seconds:Int){
         val formato = "%02d"
@@ -391,7 +392,10 @@ class HorseGameViewModel @Inject constructor(
         }}
     private fun  MutableStateFlow<HorseUiState>.updateOptions(options: Int){
         this.update {
-            it.copy(options = options)
+            it.copy(options = options, movesAvailable = getMovesAvailable())
+        }
+        this.update {
+            it.copy(movesAvailable = getMovesAvailable())
         }}
     private fun  MutableStateFlow<HorseUiState>.updateOptionProgress(optionProgress: Float){
         this.update {
@@ -446,6 +450,14 @@ class HorseGameViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun getMovesAvailable():String{
+        return if(_uiState.value.bonus!=0){
+            "${_uiState.value.options} + ${_uiState.value.bonus}"
+        }else{
+            "${_uiState.value.options}"
         }
     }
 }

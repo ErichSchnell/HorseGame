@@ -6,12 +6,14 @@ data class HorseUiState(
     val isPremium: Boolean = false,
 
     val level:Int = 1,
-    val moves:Int = 63,
+    val movesRemaining:Int = 63,
     val time:String = "00:00",
     val lives:Int = 5,
+
     val options:Int = 0,
     val optionProgress:Float = 0.0f,
     val bonus: Int = 0,
+    val movesAvailable:String = "0",
 
     val msgGameFinished: String = "",
     val score: Int = 0,

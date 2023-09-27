@@ -60,7 +60,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
         )
 
         Moves(modifier = Modifier.layoutId("cardMovesRef"),
-            moves = horseUiState.moves
+            moves = horseUiState.movesRemaining
         )
         Time(modifier = Modifier.layoutId("cardTimeRef"),
             time = horseUiState.time
@@ -71,7 +71,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             isPremium = horseUiState.isPremium
         )
         Options(modifier = Modifier.layoutId("cardOptionsRef"),
-            options = "${horseUiState.options} + ${horseUiState.bonus}" ,
+            options = horseUiState.movesAvailable ,
             progress = horseUiState.optionProgress
         )
 
