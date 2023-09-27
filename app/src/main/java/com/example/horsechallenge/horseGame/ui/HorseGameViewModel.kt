@@ -19,12 +19,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-val NO_SELECCIONADO = 0
-val SELECCIONADO = 1
-val BONUS = 2
-val HABILITADO = 3
-
-val MOVES_FOR_BONUS = 3f//3f
+const val NO_SELECCIONADO = 0
+const val SELECCIONADO = 1
+const val BONUS = 2
+const val MOVES_FOR_BONUS = 3f//3f
 
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
@@ -42,10 +40,10 @@ class HorseGameViewModel @Inject constructor(
     val handler = android.os.Handler()
     var seconds = 0
     var minutes = 0
-    val runnable = object : Runnable {
+    private val runnable = object : Runnable {
         override fun run() {
 
-            if(_uiState.value.finishedGame == false && moveFirst == false){
+            if(!_uiState.value.finishedGame && !moveFirst){
                 seconds++
                 if(seconds%60 == 0){
                     seconds = 0
@@ -77,7 +75,7 @@ class HorseGameViewModel @Inject constructor(
 
         _uiState.updateBoardBoxState(lastX.value,lastY.value,SELECCIONADO)
         _uiState.updateMoves(63)
-        _uiState.updateOptionProgress(0.0f)
+        _uiState.updateOptionProgress(0f)
         _uiState.updateBonus(0)
         _uiState.updateFinishedGame(false)
         _uiState.updateBoardAllBackground()
@@ -391,16 +389,20 @@ class HorseGameViewModel @Inject constructor(
             it.copy(lives = lives)
         }}
     private fun  MutableStateFlow<HorseUiState>.updateOptions(options: Int){
-        this.update {
-            it.copy(options = options, movesAvailable = getMovesAvailable())
+        if(_uiState.value.options != options){
+            this.update {
+                it.copy(options = options)
+            }
+            this.update {
+                it.copy(movesAvailable = getMovesAvailable())
+            }
         }
-        this.update {
-            it.copy(movesAvailable = getMovesAvailable())
-        }}
+    }
     private fun  MutableStateFlow<HorseUiState>.updateOptionProgress(optionProgress: Float){
         this.update {
             it.copy(optionProgress = optionProgress)
-        }}
+        }
+    }
     private fun  MutableStateFlow<HorseUiState>.updateBonus(bonus: Int){
         this.update {
             it.copy(bonus = bonus)
@@ -434,11 +436,6 @@ class HorseGameViewModel @Inject constructor(
     private fun  MutableStateFlow<HorseUiState>.updateBoardHability(x: Int, y: Int, hability: Boolean){
         this.value.board[x][y] = this.value.board[x][y].copy(
             hability = hability
-        )
-    }
-    private fun  MutableStateFlow<HorseUiState>.updateBoardBackground(x: Int, y: Int, background: Color){
-        this.value.board[x][y] = this.value.board[x][y].copy(
-            background = background
         )
     }
     private fun  MutableStateFlow<HorseUiState>.updateBoardAllBackground(){

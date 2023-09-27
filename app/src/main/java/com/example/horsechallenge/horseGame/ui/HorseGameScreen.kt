@@ -308,7 +308,9 @@ fun ItemTablero(
         }
         if(itemModel.boxState == BONUS){
             Image(
-                modifier = Modifier.align(Alignment.Center).padding(12.dp),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(12.dp),
                 painter = painterResource(id = R.drawable.iv_mangekyou_bonus),
                 contentDescription = "im_bonus"
             )
