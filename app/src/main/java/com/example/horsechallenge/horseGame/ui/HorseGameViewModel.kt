@@ -7,7 +7,6 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.lifecycle.ViewModel
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
-import com.example.horsechallenge.ui.theme.md_theme_box_habilted
 import com.example.horsechallenge.ui.theme.md_theme_box_selected
 import com.example.horsechallenge.ui.theme.md_theme_box_selected_bf
 import com.example.horsechallenge.ui.theme.md_theme_light_onSecondary
@@ -18,8 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.Objects
-import java.util.logging.Handler
 import javax.inject.Inject
 
 val NO_SELECCIONADO = 0
@@ -27,7 +24,7 @@ val SELECCIONADO = 1
 val BONUS = 2
 val HABILITADO = 3
 
-val MOVES_FOR_BONUS = 2f
+val MOVES_FOR_BONUS = 33f
 
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
@@ -40,34 +37,38 @@ class HorseGameViewModel @Inject constructor(
     private val lastX = mutableStateOf(0)
     private val lastY = mutableStateOf(0)
 
-    private val nHandler: Handler? = null
-    private val timeSeconds = 0
-    private val chronometer: Runnable = Runnable {
-        try {
-            timeSeconds++
-        } finally {
-            nHandler.
+    private var moveFirst = true
+
+    val handler = android.os.Handler()
+    var seconds = 0
+    var minutes = 0
+    val runnable = object : Runnable {
+        override fun run() {
+
+            if(_uiState.value.finishedGame == false && moveFirst == false){
+                seconds++
+                if(seconds%60 == 0){
+                    seconds = 0
+                    minutes++
+                    if(minutes%60 == 0){
+                        minutes = 0
+                        finishGame("Timeout :(", 0, true)
+                    }
+                }
+            }
+
+            _uiState.updateTime(minutes,seconds)
+            handler.postDelayed(this, 1000)
         }
     }
 
+
+
     init {
-        initBoard()
+        initGame()
     }
 
-    private fun startTime(){
-
-    }
-    private fun resetTime(){
-
-    }
-    fun startGame(){
-        resetTime()
-        startTime()
-//        resetBoard()
-//        setFirtPosition()
-    }
-    fun initBoard(){
-
+    fun initGame(){
         _uiState.updateBoard(getBoardMutable())
 
         lastX.value = (0..7).random()
@@ -75,13 +76,34 @@ class HorseGameViewModel @Inject constructor(
 
         _uiState.updateBoardBoxState(lastX.value,lastY.value,SELECCIONADO)
         _uiState.updateMoves(63)
-        _uiState.updateTime("00:00")
         _uiState.updateOptionProgress(0.0f)
         _uiState.updateBonus(0)
         _uiState.updateFinishedGame(false)
         _uiState.updateBoardAllBackground()
 
         checkBoxsAvailable()
+
+    }
+    private fun finishGame(msg:String, score:Int = 0, gameOver:Boolean = false){
+        resetTime()
+
+        _uiState.updateFinishedGame(true)
+        _uiState.updatemessegeGameFinished(msg)
+        _uiState.updateScore(score)
+        _uiState.updateIsGameOver(isGameOver = gameOver)
+    }
+    private fun initTime(){
+        if (moveFirst){
+            handler.post(runnable)
+            moveFirst = false
+        }
+    }
+    private fun resetTime(){
+        handler.removeCallbacks(runnable)
+        moveFirst = true
+        seconds = 0
+        minutes = 0
+        _uiState.updateTime(minutes,seconds)
     }
 
     fun homeConstraints(): ConstraintSet {
@@ -174,6 +196,9 @@ class HorseGameViewModel @Inject constructor(
 
     fun onSelectedItem(itemModel: ItemModel) {
         if(isBoxAvailable(itemModel.x, itemModel.y) || isBonusUsed(itemModel.x,itemModel.y)){
+
+            initTime()
+
             setHabilityBoxesFree(false)
 
             saveLastCoordSelected(itemModel.x,itemModel.y)
@@ -285,16 +310,12 @@ class HorseGameViewModel @Inject constructor(
     private fun checkFinishedGame(){
         if (_uiState.value.moves > 0){
             if(_uiState.value.options == 0 && _uiState.value.bonus == 0) {
-                _uiState.updatemessegeGameFinished("Game Over")
-                _uiState.updateIsGameOver(isGameOver = true)
-                _uiState.updateFinishedGame(true)
+                finishGame("Game Over",0,true)
             } else if(_uiState.value.options == 0){
                 setHabilityBoxesFree(true)
             }
         } else  {
-            _uiState.updatemessegeGameFinished("You're Winner !")
-            _uiState.updateScore(_uiState.value.score + 10)
-            _uiState.updateFinishedGame(true)
+            finishGame("You're Winner !", _uiState.value.score + 10, false)
         }
     }
 
@@ -359,9 +380,10 @@ class HorseGameViewModel @Inject constructor(
         this.update {
             it.copy(moves = moves)
         }}
-    private fun  MutableStateFlow<HorseUiState>.updateTime(time: String){
+    private fun  MutableStateFlow<HorseUiState>.updateTime(minutes:Int, seconds:Int){
+        val formato = "%02d"
         this.update {
-            it.copy(time = time)
+            it.copy(time = "${formato.format(minutes)}:${formato.format(seconds)}")
         }}
     private fun  MutableStateFlow<HorseUiState>.updateLives(lives: Int){
         this.update {
