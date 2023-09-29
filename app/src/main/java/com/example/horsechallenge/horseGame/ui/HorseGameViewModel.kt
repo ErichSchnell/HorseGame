@@ -154,7 +154,7 @@ class HorseGameViewModel @Inject constructor(
         initGame()
     }
 
-    fun initGame(){
+    private fun initGame(){
         _uiState.updateBoard(getBoardMutable())
 
         _lastX = (0..7).random()
@@ -201,12 +201,16 @@ class HorseGameViewModel @Inject constructor(
     }
 
     fun nextLevel() {
+        if(_nextLevel){
+            _uiState.updateLevel(_uiState.value.level + 1)
+        } else {
+            _uiState.updateLives(_uiState.value.lives - 1)
+            if (_uiState.value.lives == 0){
+                _uiState.updateLevel(1)
+                _uiState.updateLives(5)
+            }
+        }
         initGame()
-//        if(_nextLevel){
-//
-//        } else {
-//
-//        }
     }
 
     fun onSelectedItem(itemModel: ItemModel) {
