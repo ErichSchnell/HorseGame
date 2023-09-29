@@ -95,7 +95,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             FinishedGame(modifier = Modifier.layoutId("finishedGameRef"),
                 title = horseUiState.msgGameFinished,
                 score = horseUiState.score,
-                onClickNextLevel = {horseGameViewModel.initGame()}
+                onClickNextLevel = {horseGameViewModel.nextLevel()}
             ) {horseGameViewModel.shareGame(context)}
         }
 

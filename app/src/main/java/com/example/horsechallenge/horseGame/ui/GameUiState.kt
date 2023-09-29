@@ -10,14 +10,11 @@ data class HorseUiState(
     val time:String = "00:00",
     val lives:Int = 5,
 
-    val options:Int = 0,
     val optionProgress:Float = 0.0f,
-    val bonus: Int = 0,
     val movesAvailable:String = "0",
 
     val msgGameFinished: String = "",
     val score: Int = 0,
-    val isGameOver: Boolean = false,
     val finishedGame: Boolean = false,
 
     val msgShareGame:String = "",
