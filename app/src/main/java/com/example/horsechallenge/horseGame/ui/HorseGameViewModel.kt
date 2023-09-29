@@ -2,7 +2,6 @@ package com.example.horsechallenge.horseGame.ui
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
@@ -26,7 +25,7 @@ import javax.inject.Inject
 const val NO_SELECCIONADO = 0
 const val SELECCIONADO = 1
 const val BONUS = 2
-const val MOVES_FOR_BONUS = 3f//3f
+
 
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
@@ -122,6 +121,7 @@ class HorseGameViewModel @Inject constructor(
 
     private var _moveFirst = true
     private var _nextLevel: Boolean = false
+    private var _moveForBonus = 3f//3f
 
     private var _options:Int = 0
     private var _bonus: Int = 0
@@ -155,22 +155,31 @@ class HorseGameViewModel @Inject constructor(
     }
 
     private fun initGame(){
-        _uiState.updateBoard(getBoardMutable())
 
-        _lastX = (0..7).random()
-        _lastY = (0..7).random()
+        when(_uiState.value.level){
+            1 -> {setLevel1()}
+            2 -> {}
+            3 -> {}
+            4 -> {}
+            5 -> {}
+            6 -> {}
+            7 -> {}
+            8 -> {}
+            9 -> {}
+            10 -> {}
+            else -> {}
+        }
 
         _bonus = 0
-
+        _lastX = (0..7).random()
+        _lastY = (0..7).random()
         _uiState.updateBoardBoxState(_lastX,_lastY,SELECCIONADO)
-        _uiState.updateMoves(63)
+
         _uiState.updateOptionProgress(0f)
         _uiState.updateFinishedGame(false)
         _uiState.updateBoardAllBackground()
         _uiState.updateTime(_minutes,_seconds)
-
         checkBoxsAvailable()
-
     }
     private fun finishGame(msg:String, gameOver:Boolean = false){
         resetTime()
@@ -182,7 +191,7 @@ class HorseGameViewModel @Inject constructor(
         if(gameOver) _uiState.updateMsgShareGame("Hoy no se pudo...")
         else _uiState.updateMsgShareGame("Soy un crack! las cosas como son...")
 
-        _nextLevel = !gameOver
+        //_nextLevel = !gameOver
 
     }
     private fun checkFinishedGame(){
@@ -256,7 +265,7 @@ class HorseGameViewModel @Inject constructor(
         return _uiState.value.board[_lastX][_lastY].boxState == BONUS
     }
     private fun addBoxBonus() {
-        val incremento:Float = 1 / MOVES_FOR_BONUS
+        val incremento:Float = 1 / _moveForBonus
 
         if(_uiState.value.optionProgress >= 1.0f){
             _uiState.updateOptionProgress(0f)
@@ -359,23 +368,6 @@ class HorseGameViewModel @Inject constructor(
             md_theme_light_secondary
         }
     }
-    private fun getBoardMutable(): MutableList<MutableList<ItemModel>>{
-        val boardAuxState: MutableList<MutableList<ItemModel>> = mutableListOf()
-
-        for (i in 0 until 8){
-            val newRow: MutableList<ItemModel> = mutableListOf()
-            for (j in 0 until 8){
-                    newRow.add(ItemModel(
-                        x = i, y = j,
-                        background = getInitBoxColor(i,j)
-                    ))
-            }
-            boardAuxState.add(newRow)
-        }
-
-        return boardAuxState
-    }
-
 
     fun shareGame(contexto: Context){
         viewModelScope.launch{
@@ -408,6 +400,41 @@ class HorseGameViewModel @Inject constructor(
             "$_options"
         }
     }
+
+
+    /*
+     * ---- ¡¡¡ LEVELS !!! ----
+     */
+    private fun setLevel1(){
+
+        val boardAuxState: MutableList<MutableList<ItemModel>> = mutableListOf()
+
+        for (i in 0 until 8){
+            val newRow: MutableList<ItemModel> = mutableListOf()
+            for (j in 0 until 8){
+                newRow.add(ItemModel(
+                    x = i, y = j,
+                    background = getInitBoxColor(i,j)
+                ))
+            }
+            boardAuxState.add(newRow)
+        }
+
+        _uiState.updateBoard(boardAuxState)
+        _moveForBonus = 3f
+        _uiState.updateMoves(63)
+
+
+    }
+    private fun setLevel2(){}
+    private fun setLevel3(){}
+    private fun setLevel4(){}
+    private fun setLevel5(){}
+    private fun setLevel6(){}
+    private fun setLevel7(){}
+    private fun setLevel8(){}
+    private fun setLevel9(){}
+    private fun setLevel10(){}
 
     /*
      * ---- FUNCIONES DE ORDEN SUPERIOR SOBRE _uiState ----
