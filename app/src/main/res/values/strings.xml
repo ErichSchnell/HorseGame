@@ -12,7 +12,7 @@
 
     <string name="winner">Winner</string>
     <string name="game_over">Game Over</string>
-    <string name="score">Score: %d</string>
+    <string name="score">Score: %d/64</string>
     <string name="next_level">Play Again</string>
 
 </resources>

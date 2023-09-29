@@ -135,7 +135,7 @@ class HorseGameViewModel @Inject constructor(
                     minutes++
                     if(minutes%60 == 0){
                         minutes = 0
-                        finishGame("Timeout :(", 0, true)
+                        finishGame("Timeout :(", true)
                         return
                     }
                 }
@@ -167,13 +167,13 @@ class HorseGameViewModel @Inject constructor(
         checkBoxsAvailable()
 
     }
-    private fun finishGame(msg:String, score:Int = 0, gameOver:Boolean = false){
+    private fun finishGame(msg:String, gameOver:Boolean = false){
         resetTime()
 
 
         _uiState.updateFinishedGame(true)
         _uiState.updateMsgGameFinished(msg)
-        _uiState.updateScore(score)
+        _uiState.updateScore()
         _uiState.updateIsGameOver(isGameOver = gameOver)
 
 
@@ -187,12 +187,12 @@ class HorseGameViewModel @Inject constructor(
     private fun checkFinishedGame(){
         if (_uiState.value.movesRemaining > 0){
             if(_uiState.value.options == 0 && _uiState.value.bonus == 0) {
-                finishGame("Game Over",0,true)
+                finishGame("Game Over",true)
             } else if(_uiState.value.options == 0){
                 setHabilityBoxesFree(true)
             }
         } else  {
-            finishGame("You're Winner !", _uiState.value.score + 10, false)
+            finishGame("You're Winner !", false)
         }
     }
 
@@ -438,9 +438,9 @@ class HorseGameViewModel @Inject constructor(
         this.update {
             it.copy(bonus = bonus)
         }}
-    private fun  MutableStateFlow<HorseUiState>.updateScore(score: Int){
+    private fun  MutableStateFlow<HorseUiState>.updateScore(){
         this.update {
-            it.copy(score = score)
+            it.copy(score = 64-_uiState.value.movesRemaining)
         }}
     private fun  MutableStateFlow<HorseUiState>.updateIsGameOver(isGameOver: Boolean){
         this.update {
