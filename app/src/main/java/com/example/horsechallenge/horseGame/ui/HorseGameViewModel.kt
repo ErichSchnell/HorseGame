@@ -117,37 +117,36 @@ class HorseGameViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HorseUiState())
     val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()
 
-    private val lastX = mutableStateOf(0)
-    private val lastY = mutableStateOf(0)
+    private var _lastX = 0
+    private var _lastY = 0
 
-    private var moveFirst = true
-    private var nextLevel: Boolean = false
+    private var _moveFirst = true
+    private var _nextLevel: Boolean = false
 
-    private var options:Int = 0
-    private var bonus: Int = 0
-    
+    private var _options:Int = 0
+    private var _bonus: Int = 0
 
-    val handler = android.os.Handler()
-    var seconds = 0
-    var minutes = 0
-    private val runnable = object : Runnable {
+    private val _handler = android.os.Handler()
+    private var _seconds = 0
+    private var _minutes = 0
+    private val _runnable = object : Runnable {
         override fun run() {
 
-            if(!_uiState.value.finishedGame && !moveFirst){
-                seconds++
-                if(seconds%60 == 0){
-                    seconds = 0
-                    minutes++
-                    if(minutes%60 == 0){
-                        minutes = 0
+            if(!_uiState.value.finishedGame && !_moveFirst){
+                _seconds++
+                if(_seconds%60 == 0){
+                    _seconds = 0
+                    _minutes++
+                    if(_minutes%60 == 0){
+                        _minutes = 0
                         finishGame("Timeout :(", true)
                         return
                     }
                 }
             }
 
-            _uiState.updateTime(minutes,seconds)
-            handler.postDelayed(this, 1000)
+            _uiState.updateTime(_minutes,_seconds)
+            _handler.postDelayed(this, 1000)
         }
     }
 
@@ -158,17 +157,17 @@ class HorseGameViewModel @Inject constructor(
     fun initGame(){
         _uiState.updateBoard(getBoardMutable())
 
-        lastX.value = (0..7).random()
-        lastY.value = (0..7).random()
+        _lastX = (0..7).random()
+        _lastY = (0..7).random()
 
-        bonus = 0
+        _bonus = 0
 
-        _uiState.updateBoardBoxState(lastX.value,lastY.value,SELECCIONADO)
+        _uiState.updateBoardBoxState(_lastX,_lastY,SELECCIONADO)
         _uiState.updateMoves(63)
         _uiState.updateOptionProgress(0f)
         _uiState.updateFinishedGame(false)
         _uiState.updateBoardAllBackground()
-        _uiState.updateTime(minutes,seconds)
+        _uiState.updateTime(_minutes,_seconds)
 
         checkBoxsAvailable()
 
@@ -186,14 +185,14 @@ class HorseGameViewModel @Inject constructor(
         if(gameOver) _uiState.updateMsgShareGame("Hoy no se pudo...$complemento")
         else _uiState.updateMsgShareGame("Soy un crack! las cosas como son...$complemento")
 
-        nextLevel = !gameOver
+        _nextLevel = !gameOver
 
     }
     private fun checkFinishedGame(){
         if (_uiState.value.movesRemaining > 0){
-            if(options == 0 && bonus == 0) {
+            if(_options == 0 && _bonus == 0) {
                 finishGame("Game Over",true)
-            } else if(options == 0){
+            } else if(_options == 0){
                 setHabilityBoxesFree(true)
             }
         } else  {
@@ -202,11 +201,12 @@ class HorseGameViewModel @Inject constructor(
     }
 
     fun nextLevel() {
-        if(nextLevel){
-
-        } else {
-
-        }
+        initGame()
+//        if(_nextLevel){
+//
+//        } else {
+//
+//        }
     }
 
     fun onSelectedItem(itemModel: ItemModel) {
@@ -218,7 +218,7 @@ class HorseGameViewModel @Inject constructor(
 
             saveLastCoordSelected(itemModel.x,itemModel.y)
 
-            if(isBoxBonus()) bonus++
+            if(isBoxBonus()) _bonus++
 
             _uiState.updateBoardBoxState(itemModel.x, itemModel.y, SELECCIONADO)
             _uiState.updateMoves(_uiState.value.movesRemaining.dec())
@@ -230,29 +230,29 @@ class HorseGameViewModel @Inject constructor(
     }
 
     private fun initTime(){
-        if (moveFirst){
-            handler.post(runnable)
-            moveFirst = false
+        if (_moveFirst){
+            _handler.post(_runnable)
+            _moveFirst = false
         }
     }
     private fun resetTime(){
-        handler.removeCallbacks(runnable)
-        moveFirst = true
-        seconds = 0
-        minutes = 0
+        _handler.removeCallbacks(_runnable)
+        _moveFirst = true
+        _seconds = 0
+        _minutes = 0
     }
 
     private fun isBonusUsed(x: Int, y: Int): Boolean{
-        if(options == 0){
+        if(_options == 0){
             if (_uiState.value.board[x][y].boxState == BONUS || _uiState.value.board[x][y].boxState == NO_SELECCIONADO){
-                bonus--
+                _bonus--
                 return true
             }
         }
         return false
     }
     private fun isBoxBonus(): Boolean{
-        return _uiState.value.board[lastX.value][lastY.value].boxState == BONUS
+        return _uiState.value.board[_lastX][_lastY].boxState == BONUS
     }
     private fun addBoxBonus() {
         val incremento:Float = 1 / MOVES_FOR_BONUS
@@ -288,8 +288,8 @@ class HorseGameViewModel @Inject constructor(
 
     private fun isBoxAvailable(x: Int, y: Int): Boolean{
 
-        val difX:Int = x - lastX.value
-        val difY:Int = y - lastY.value
+        val difX:Int = x - _lastX
+        val difY:Int = y - _lastY
 
         if(_uiState.value.board[x][y].boxState == SELECCIONADO) return false
 
@@ -304,7 +304,7 @@ class HorseGameViewModel @Inject constructor(
         return false
     }
     private fun checkBoxsAvailable(){
-        options = 0
+        _options = 0
 
         checkMove(-2,-1)
         checkMove(-2,1)
@@ -318,13 +318,13 @@ class HorseGameViewModel @Inject constructor(
         checkFinishedGame()
     }
     private fun checkMove(x: Int, y: Int) {
-        val difX:Int = lastX.value + x
-        val difY:Int = lastY.value + y
+        val difX:Int = _lastX + x
+        val difY:Int = _lastY + y
 
         if(difX >= 0 && difY >= 0 && difX <= 7 && difY <= 7){
             if (_uiState.value.board[difX][difY].boxState == NO_SELECCIONADO
                 || _uiState.value.board[difX][difY].boxState == BONUS) {
-                options++
+                _options++
                 _uiState.updateMovesAvailable()
                 _uiState.updateBoardHability(difX, difY, true)
             }
@@ -342,7 +342,7 @@ class HorseGameViewModel @Inject constructor(
 
     private fun getBoxColor(box: ItemModel): Color{
         return if(box.boxState == SELECCIONADO){
-            if(box.x == lastX.value && box.y == lastY.value){
+            if(box.x == _lastX && box.y == _lastY){
                 md_theme_box_selected
             } else {
                 md_theme_box_selected_bf
@@ -391,8 +391,8 @@ class HorseGameViewModel @Inject constructor(
     }
 
     private fun saveLastCoordSelected(x: Int, y: Int){
-        lastX.value = x
-        lastY.value = y
+        _lastX = x
+        _lastY = y
     }
     fun togglePremium() {
         _uiState.updateIsPremium(!_uiState.value.isPremium)
@@ -401,10 +401,10 @@ class HorseGameViewModel @Inject constructor(
     }
 
     private fun getMovesAvailable():String{
-        return if(bonus!=0){
-            "$options + $bonus"
+        return if(_bonus!=0){
+            "$_options + $_bonus"
         }else{
-            "$options"
+            "$_options"
         }
     }
 
