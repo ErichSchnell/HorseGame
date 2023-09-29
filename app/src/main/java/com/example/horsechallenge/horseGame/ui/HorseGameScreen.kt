@@ -1,8 +1,11 @@
 package com.example.horsechallenge.horseGame.ui
 
+import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,9 +22,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+//import androidx.compose.runtime.Composable
+//import androidx.compose.runtime.collectAsState
+//import androidx.compose.runtime.currentCompositionLocalContext
+//import androidx.compose.runtime.setValue
+//import androidx.compose.runtime.getValue
+//import androidx.compose.runtime.mutableStateOf
+//import androidx.compose.runtime.remember
+//import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
@@ -35,12 +44,13 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.horsechallenge.R
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 import com.example.horsechallenge.ui.theme.amaranthFamily
+import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
 
-
-
+    val context = LocalContext.current
     val horseUiState by horseGameViewModel.uiState.collectAsState()
     val constraints = horseGameViewModel.homeConstraints()
 
@@ -86,7 +96,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
                 title = horseUiState.msgGameFinished,
                 score = horseUiState.score,
                 onClickNextLevel = {horseGameViewModel.initGame()}
-            ) {}
+            ) {horseGameViewModel.shareGame(context)}
         }
 
         Credits(modifier = Modifier.layoutId("creditsRef"))

@@ -1,11 +1,14 @@
 package com.example.horsechallenge.horseGame.ui
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 import com.example.horsechallenge.ui.theme.md_theme_box_selected
 import com.example.horsechallenge.ui.theme.md_theme_box_selected_bf
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 const val NO_SELECCIONADO = 0
@@ -27,83 +31,6 @@ const val MOVES_FOR_BONUS = 3f//3f
 @HiltViewModel
 class HorseGameViewModel @Inject constructor(
 ):ViewModel() {
-
-
-    private val _uiState = MutableStateFlow(HorseUiState())
-    val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()
-
-    private val lastX = mutableStateOf(0)
-    private val lastY = mutableStateOf(0)
-
-    private var moveFirst = true
-
-    val handler = android.os.Handler()
-    var seconds = 0
-    var minutes = 0
-    private val runnable = object : Runnable {
-        override fun run() {
-
-            if(!_uiState.value.finishedGame && !moveFirst){
-                seconds++
-                if(seconds%60 == 0){
-                    seconds = 0
-                    minutes++
-                    if(minutes%60 == 0){
-                        minutes = 0
-                        finishGame("Timeout :(", 0, true)
-                        return
-                    }
-                }
-            }
-
-            _uiState.updateTime(minutes,seconds)
-            handler.postDelayed(this, 1000)
-        }
-    }
-
-
-
-    init {
-        initGame()
-    }
-
-    fun initGame(){
-        _uiState.updateBoard(getBoardMutable())
-
-        lastX.value = (0..7).random()
-        lastY.value = (0..7).random()
-
-        _uiState.updateBoardBoxState(lastX.value,lastY.value,SELECCIONADO)
-        _uiState.updateMoves(63)
-        _uiState.updateOptionProgress(0f)
-        _uiState.updateBonus(0)
-        _uiState.updateFinishedGame(false)
-        _uiState.updateBoardAllBackground()
-
-        checkBoxsAvailable()
-
-    }
-    private fun finishGame(msg:String, score:Int = 0, gameOver:Boolean = false){
-        resetTime()
-
-        _uiState.updateFinishedGame(true)
-        _uiState.updatemessegeGameFinished(msg)
-        _uiState.updateScore(score)
-        _uiState.updateIsGameOver(isGameOver = gameOver)
-    }
-    private fun initTime(){
-        if (moveFirst){
-            handler.post(runnable)
-            moveFirst = false
-        }
-    }
-    private fun resetTime(){
-        handler.removeCallbacks(runnable)
-        moveFirst = true
-        seconds = 0
-        minutes = 0
-        _uiState.updateTime(minutes,seconds)
-    }
 
     fun homeConstraints(): ConstraintSet {
         return ConstraintSet{
@@ -187,10 +114,86 @@ class HorseGameViewModel @Inject constructor(
         }
     }
 
-    fun togglePremium() {
-        _uiState.updateIsPremium(!_uiState.value.isPremium)
+    private val _uiState = MutableStateFlow(HorseUiState())
+    val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()
+
+    private val lastX = mutableStateOf(0)
+    private val lastY = mutableStateOf(0)
+
+    private var moveFirst = true
+
+    val handler = android.os.Handler()
+    var seconds = 0
+    var minutes = 0
+    private val runnable = object : Runnable {
+        override fun run() {
+
+            if(!_uiState.value.finishedGame && !moveFirst){
+                seconds++
+                if(seconds%60 == 0){
+                    seconds = 0
+                    minutes++
+                    if(minutes%60 == 0){
+                        minutes = 0
+                        finishGame("Timeout :(", 0, true)
+                        return
+                    }
+                }
+            }
+
+            _uiState.updateTime(minutes,seconds)
+            handler.postDelayed(this, 1000)
+        }
+    }
+
+    init {
+        initGame()
+    }
+
+    fun initGame(){
+        _uiState.updateBoard(getBoardMutable())
+
+        lastX.value = (0..7).random()
+        lastY.value = (0..7).random()
+
+        _uiState.updateBoardBoxState(lastX.value,lastY.value,SELECCIONADO)
+        _uiState.updateMoves(63)
+        _uiState.updateOptionProgress(0f)
+        _uiState.updateBonus(0)
+        _uiState.updateFinishedGame(false)
         _uiState.updateBoardAllBackground()
+        _uiState.updateTime(minutes,seconds)
+
         checkBoxsAvailable()
+
+    }
+    private fun finishGame(msg:String, score:Int = 0, gameOver:Boolean = false){
+        resetTime()
+
+
+        _uiState.updateFinishedGame(true)
+        _uiState.updateMsgGameFinished(msg)
+        _uiState.updateScore(score)
+        _uiState.updateIsGameOver(isGameOver = gameOver)
+
+
+        val movesMade = 64-_uiState.value.movesRemaining
+        val complemento = "\nTu podrias hacerlo mejor ?\n*Mi Puntaje:* $movesMade/64\n*Mi Tiempo:* ${_uiState.value.time}\n"
+
+        if(gameOver) _uiState.updateMsgShareGame("Hoy no se pudo...$complemento")
+        else _uiState.updateMsgShareGame("Soy un crack! las cosas como son...$complemento")
+
+    }
+    private fun checkFinishedGame(){
+        if (_uiState.value.movesRemaining > 0){
+            if(_uiState.value.options == 0 && _uiState.value.bonus == 0) {
+                finishGame("Game Over",0,true)
+            } else if(_uiState.value.options == 0){
+                setHabilityBoxesFree(true)
+            }
+        } else  {
+            finishGame("You're Winner !", _uiState.value.score + 10, false)
+        }
     }
 
     fun onSelectedItem(itemModel: ItemModel) {
@@ -212,6 +215,20 @@ class HorseGameViewModel @Inject constructor(
             checkBoxsAvailable()
         }
     }
+
+    private fun initTime(){
+        if (moveFirst){
+            handler.post(runnable)
+            moveFirst = false
+        }
+    }
+    private fun resetTime(){
+        handler.removeCallbacks(runnable)
+        moveFirst = true
+        seconds = 0
+        minutes = 0
+    }
+
     private fun isBonusUsed(x: Int, y: Int): Boolean{
         if(_uiState.value.options == 0){
             if (_uiState.value.board[x][y].boxState == BONUS
@@ -235,7 +252,6 @@ class HorseGameViewModel @Inject constructor(
             _uiState.updateOptionProgress(_uiState.value.optionProgress + incremento)
         }
     }
-
     private fun agregarBoxBonus() {
         val coodAvailable:MutableList<MutableList<Int>> = mutableListOf()
 
@@ -256,11 +272,6 @@ class HorseGameViewModel @Inject constructor(
                 BONUS
             )
         }
-    }
-
-    private fun saveLastCoordSelected(x: Int, y: Int){
-        lastX.value = x
-        lastY.value = y
     }
 
     private fun isBoxAvailable(x: Int, y: Int): Boolean{
@@ -306,18 +317,6 @@ class HorseGameViewModel @Inject constructor(
             }
         }
     }
-    private fun checkFinishedGame(){
-        if (_uiState.value.movesRemaining > 0){
-            if(_uiState.value.options == 0 && _uiState.value.bonus == 0) {
-                finishGame("Game Over",0,true)
-            } else if(_uiState.value.options == 0){
-                setHabilityBoxesFree(true)
-            }
-        } else  {
-            finishGame("You're Winner !", _uiState.value.score + 10, false)
-        }
-    }
-
     private fun setHabilityBoxesFree(state: Boolean) {
         _uiState.value.board.forEach { row ->
             row.forEach {
@@ -363,6 +362,38 @@ class HorseGameViewModel @Inject constructor(
         return boardAuxState
     }
 
+
+    fun shareGame(contexto: Context){
+        viewModelScope.launch{
+
+            val intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT,_uiState.value.msgShareGame)
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TITLE,"Juega HorseChallenge!")
+            }
+            val shareIntent = Intent.createChooser(intent,null)
+            contexto.startActivity(shareIntent)
+        }
+    }
+
+    private fun saveLastCoordSelected(x: Int, y: Int){
+        lastX.value = x
+        lastY.value = y
+    }
+    fun togglePremium() {
+        _uiState.updateIsPremium(!_uiState.value.isPremium)
+        _uiState.updateBoardAllBackground()
+        checkBoxsAvailable()
+    }
+
+    private fun getMovesAvailable():String{
+        return if(_uiState.value.bonus!=0){
+            "${_uiState.value.options} + ${_uiState.value.bonus}"
+        }else{
+            "${_uiState.value.options}"
+        }
+    }
 
     /*
      * ---- FUNCIONES DE ORDEN SUPERIOR SOBRE _uiState ----
@@ -419,9 +450,13 @@ class HorseGameViewModel @Inject constructor(
         this.update {
             it.copy(finishedGame = finishedGame)
         }}
-    private fun  MutableStateFlow<HorseUiState>.updatemessegeGameFinished(messegeGameFinished: String){
+    private fun  MutableStateFlow<HorseUiState>.updateMsgGameFinished(msgGameFinished: String){
         this.update {
-            it.copy(msgGameFinished = messegeGameFinished)
+            it.copy(msgGameFinished = msgGameFinished)
+        }}
+    private fun  MutableStateFlow<HorseUiState>.updateMsgShareGame(msgShareGame: String){
+        this.update {
+            it.copy(msgShareGame = msgShareGame)
         }}
     private fun  MutableStateFlow<HorseUiState>.updateBoard(board: MutableList<MutableList<ItemModel>>){
         this.update {
@@ -447,14 +482,6 @@ class HorseGameViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    private fun getMovesAvailable():String{
-        return if(_uiState.value.bonus!=0){
-            "${_uiState.value.options} + ${_uiState.value.bonus}"
-        }else{
-            "${_uiState.value.options}"
         }
     }
 }

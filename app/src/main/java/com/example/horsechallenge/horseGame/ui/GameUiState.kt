@@ -20,5 +20,7 @@ data class HorseUiState(
     val isGameOver: Boolean = false,
     val finishedGame: Boolean = false,
 
+    val msgShareGame:String = "",
+
     val board: MutableList<MutableList<ItemModel>> = mutableListOf(),
 )
