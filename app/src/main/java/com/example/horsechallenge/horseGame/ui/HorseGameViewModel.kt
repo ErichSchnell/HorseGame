@@ -179,11 +179,8 @@ class HorseGameViewModel @Inject constructor(
         _uiState.updateMsgGameFinished(msg)
         _uiState.updateScore()
 
-        val movesMade = 64-_uiState.value.movesRemaining
-        val complemento = "\nTu podrias hacerlo mejor ?\n*Mi Puntaje:* $movesMade/64\n*Mi Tiempo:* ${_uiState.value.time}\n\n*Descarga el Juego !*\nhttps://drive.google.com/file/d/1f-5l6Kud72D9r3JlfVSTAJGx4yFJ_I3s/view?usp=sharing"
-
-        if(gameOver) _uiState.updateMsgShareGame("Hoy no se pudo...$complemento")
-        else _uiState.updateMsgShareGame("Soy un crack! las cosas como son...$complemento")
+        if(gameOver) _uiState.updateMsgShareGame("Hoy no se pudo...")
+        else _uiState.updateMsgShareGame("Soy un crack! las cosas como son...")
 
         _nextLevel = !gameOver
 
@@ -459,8 +456,17 @@ class HorseGameViewModel @Inject constructor(
             it.copy(msgGameFinished = msgGameFinished)
         }}
     private fun  MutableStateFlow<HorseUiState>.updateMsgShareGame(msgShareGame: String){
+        val movesMade = 64-_uiState.value.movesRemaining
+
+        val invitacion = "Tu podrias hacerlo mejor ?\n"
+        val score = "*Mi Puntaje:* $movesMade/64\n"
+        val tiempo = "*Mi Tiempo:* ${_uiState.value.time}\n"
+        val enlace = "\n*Descarga el Juego !*\nhttps://drive.google.com/file/d/1f-5l6Kud72D9r3JlfVSTAJGx4yFJ_I3s/view?usp=sharing"
+
+        val msg = "$msgShareGame\n $invitacion $score $tiempo $enlace"
+
         this.update {
-            it.copy(msgShareGame = msgShareGame)
+            it.copy(msgShareGame = msg)
         }}
     private fun  MutableStateFlow<HorseUiState>.updateBoard(board: MutableList<MutableList<ItemModel>>){
         this.update {
