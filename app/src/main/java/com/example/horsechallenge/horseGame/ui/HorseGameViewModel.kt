@@ -225,7 +225,7 @@ class HorseGameViewModel @Inject constructor(
     fun nextLevel() {
         if(_nextLevel){
             _uiState.updateLevel(_uiState.value.level + 1)
-            _uiState.updateLives(5)
+            _uiState.updateLives(10)
         } else {
             _uiState.updateLives(_uiState.value.lives - 1)
             if (_uiState.value.lives == 0){
