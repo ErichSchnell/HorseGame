@@ -5,7 +5,7 @@ import com.example.horsechallenge.horseGame.ui.model.ItemModel
 data class HorseUiState(
     val isPremium: Boolean = false,
 
-    val level:Int = 1,
+    val level:Int = 10,
     val movesRemaining:Int = 63,
     val time:String = "00:00",
     val lives:Int = 5,

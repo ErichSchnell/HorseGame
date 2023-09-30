@@ -121,7 +121,7 @@ class HorseGameViewModel @Inject constructor(
 
     private var _moveFirst = true
     private var _nextLevel: Boolean = false
-    private var _moveForBonus = 3f//3f
+    private var _moveForBonus = 3
 
     private var _options:Int = 0
     private var _bonus: Int = 0
@@ -155,32 +155,48 @@ class HorseGameViewModel @Inject constructor(
     }
 
     private fun initGame(){
+        _uiState.updateBoard(getBoardMutable())
 
-        when(_uiState.value.level){
-            1 -> {setLevel1()}
-            2 -> {}
-            3 -> {}
-            4 -> {}
-            5 -> {}
-            6 -> {}
-            7 -> {}
-            8 -> {}
-            9 -> {}
-            10 -> {}
-            else -> {}
-        }
-
-        _bonus = 0
-        _lastX = (0..7).random()
-        _lastY = (0..7).random()
-        _uiState.updateBoardBoxState(_lastX,_lastY,SELECCIONADO)
+        chooseLevel()
+        chooseBoxFree()
 
         _uiState.updateOptionProgress(0f)
         _uiState.updateFinishedGame(false)
         _uiState.updateBoardAllBackground()
         _uiState.updateTime(_minutes,_seconds)
+
+        _bonus = 0
+
         checkBoxsAvailable()
     }
+    private fun chooseLevel() {
+        when(_uiState.value.level){
+            1 -> {setLevel1(30)}
+            2 -> {setLevel2(9)}
+            3 -> {setLevel3(6)}
+            4 -> {setLevel4(4)}
+            5 -> {setLevel5(6)}
+            6 -> {setLevel6(4)}
+            7 -> {setLevel7(4)}
+            8 -> {setLevel8(4)}
+            9 -> {setLevel9(4)}
+            10 -> {setLevel10(4)}
+            else -> {
+                _uiState.updateLevel(1)
+                setLevel1(30)
+            }
+        }
+    }
+    private fun chooseBoxFree() {
+        val coord = randomBoxFree()
+        if (coord.isNotEmpty()){
+            _lastX = coord[0]
+            _lastY = coord[1]
+            _uiState.updateBoardBoxState(_lastX,_lastY,SELECCIONADO)
+            _uiState.updateMoves(coord[2]-1)
+        }
+    }
+
     private fun finishGame(msg:String, gameOver:Boolean = false){
         resetTime()
 
@@ -191,7 +207,7 @@ class HorseGameViewModel @Inject constructor(
         if(gameOver) _uiState.updateMsgShareGame("Hoy no se pudo...")
         else _uiState.updateMsgShareGame("Soy un crack! las cosas como son...")
 
-        //_nextLevel = !gameOver
+        _nextLevel = !gameOver
 
     }
     private fun checkFinishedGame(){
@@ -209,11 +225,11 @@ class HorseGameViewModel @Inject constructor(
     fun nextLevel() {
         if(_nextLevel){
             _uiState.updateLevel(_uiState.value.level + 1)
+            _uiState.updateLives(5)
         } else {
             _uiState.updateLives(_uiState.value.lives - 1)
             if (_uiState.value.lives == 0){
                 _uiState.updateLevel(1)
-                _uiState.updateLives(5)
             }
         }
         initGame()
@@ -265,7 +281,7 @@ class HorseGameViewModel @Inject constructor(
         return _uiState.value.board[_lastX][_lastY].boxState == BONUS
     }
     private fun addBoxBonus() {
-        val incremento:Float = 1 / _moveForBonus
+        val incremento:Float = 1f / _moveForBonus
 
         if(_uiState.value.optionProgress >= 1.0f){
             _uiState.updateOptionProgress(0f)
@@ -275,24 +291,9 @@ class HorseGameViewModel @Inject constructor(
         }
     }
     private fun agregarBoxBonus() {
-        val coodAvailable:MutableList<MutableList<Int>> = mutableListOf()
-
-        _uiState.value.board.forEach{ row ->
-            row.forEach { item ->
-                if(item.boxState == NO_SELECCIONADO){
-                    coodAvailable.add(mutableListOf(item.x,item.y))
-                }
-            }
-        }
-
-        val countAvailable = coodAvailable.count()
-        if (countAvailable > 0){
-            val boxRandom = (1..countAvailable).random()-1
-            _uiState.updateBoardBoxState(
-                coodAvailable[boxRandom][0],
-                coodAvailable[boxRandom][1],
-                BONUS
-            )
+        val coord = randomBoxFree()
+        if (coord.isNotEmpty()){
+            _uiState.updateBoardBoxState(coord[0],coord[1],BONUS)
         }
     }
 
@@ -325,6 +326,7 @@ class HorseGameViewModel @Inject constructor(
         checkMove(1,2)
         checkMove(1,-2)
 
+        _uiState.updateMovesAvailable()
         checkFinishedGame()
     }
     private fun checkMove(x: Int, y: Int) {
@@ -335,7 +337,6 @@ class HorseGameViewModel @Inject constructor(
             if (_uiState.value.board[difX][difY].boxState == NO_SELECCIONADO
                 || _uiState.value.board[difX][difY].boxState == BONUS) {
                 _options++
-                _uiState.updateMovesAvailable()
                 _uiState.updateBoardHability(difX, difY, true)
             }
         }
@@ -400,41 +401,139 @@ class HorseGameViewModel @Inject constructor(
             "$_options"
         }
     }
+    private fun randomBoxFree(): List<Int> {
+        var moves = 0
 
+        val coodAvailable:MutableList<MutableList<Int>> = mutableListOf()
+        _uiState.value.board.forEach{ row ->
+            row.forEach { item ->
+                if(item.boxState == NO_SELECCIONADO){
+                    moves++
+                    coodAvailable.add(mutableListOf(item.x,item.y))
+                }
+            }
+        }
+
+        var randomX = 0
+        var randomY = 0
+        val countAvailable = coodAvailable.count()
+
+        if (countAvailable > 0){
+            val boxRandom = (0 until countAvailable).random()
+            randomX = coodAvailable[boxRandom][0]
+            randomY = coodAvailable[boxRandom][1]
+            return listOf(randomX,randomY,moves)
+        }
+
+        return emptyList()
+    }
 
     /*
      * ---- ¡¡¡ LEVELS !!! ----
      */
-    private fun setLevel1(){
-
+    private fun getBoardMutable(): MutableList<MutableList<ItemModel>>{
         val boardAuxState: MutableList<MutableList<ItemModel>> = mutableListOf()
 
         for (i in 0 until 8){
             val newRow: MutableList<ItemModel> = mutableListOf()
+
             for (j in 0 until 8){
                 newRow.add(ItemModel(
-                    x = i, y = j,
+                    x = i,
+                    y = j,
                     background = getInitBoxColor(i,j)
                 ))
             }
-            boardAuxState.add(newRow)
+                boardAuxState.add(newRow)
         }
 
-        _uiState.updateBoard(boardAuxState)
-        _moveForBonus = 3f
-        _uiState.updateMoves(63)
-
-
+        return boardAuxState
     }
-    private fun setLevel2(){}
-    private fun setLevel3(){}
-    private fun setLevel4(){}
-    private fun setLevel5(){}
-    private fun setLevel6(){}
-    private fun setLevel7(){}
-    private fun setLevel8(){}
-    private fun setLevel9(){}
-    private fun setLevel10(){}
+
+    private fun setLevel1(movForBonus: Int){
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel2(movForBonus: Int){
+        for (i in 0 until 8){
+            _uiState.updateBoardBoxState(i, 6, SELECCIONADO)
+        }
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel3(movForBonus: Int){
+        for (i in 0 until 8){
+            _uiState.updateBoardBoxState(i,1, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,6, SELECCIONADO)
+        }
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel4(movForBonus: Int){
+        for (i in 1 until 7){
+            _uiState.updateBoardBoxState(1, i, SELECCIONADO)
+            _uiState.updateBoardBoxState(6, i, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,1, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,6, SELECCIONADO)
+        }
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel5(movForBonus: Int){
+        for (i in 4 until 8){
+            _uiState.updateBoardBoxState(i,4, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,5, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,6, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,7, SELECCIONADO)
+        }
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel6(movForBonus: Int){
+        for (i in 0 until 8){
+            _uiState.updateBoardBoxState(i,4, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,5, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,6, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,7, SELECCIONADO)
+        }
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel7(movForBonus: Int){
+        for (i in 2 until 6){
+            _uiState.updateBoardBoxState(2, i, SELECCIONADO)
+            _uiState.updateBoardBoxState(5, i, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,2, SELECCIONADO)
+            _uiState.updateBoardBoxState(i,5, SELECCIONADO)
+        }
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel8(movForBonus: Int){
+        _uiState.updateBoardBoxState(0, 0, SELECCIONADO)
+        _uiState.updateBoardBoxState(0, 1, SELECCIONADO)
+        _uiState.updateBoardBoxState(1, 0, SELECCIONADO)
+        _uiState.updateBoardBoxState(1, 1, SELECCIONADO)
+
+        _uiState.updateBoardBoxState(0, 6, SELECCIONADO)
+        _uiState.updateBoardBoxState(0, 7, SELECCIONADO)
+        _uiState.updateBoardBoxState(1, 6, SELECCIONADO)
+        _uiState.updateBoardBoxState(1, 7, SELECCIONADO)
+
+        _uiState.updateBoardBoxState(6, 0, SELECCIONADO)
+        _uiState.updateBoardBoxState(6, 1, SELECCIONADO)
+        _uiState.updateBoardBoxState(7, 0, SELECCIONADO)
+        _uiState.updateBoardBoxState(7, 1, SELECCIONADO)
+
+        _uiState.updateBoardBoxState(6, 6, SELECCIONADO)
+        _uiState.updateBoardBoxState(6, 7, SELECCIONADO)
+        _uiState.updateBoardBoxState(7, 6, SELECCIONADO)
+        _uiState.updateBoardBoxState(7, 7, SELECCIONADO)
+        _moveForBonus = movForBonus
+    }
+    private fun setLevel9(movForBonus: Int){
+        for (i in 0 until 8){
+            _uiState.updateBoardBoxState(i, i, SELECCIONADO)
+            _uiState.updateBoardBoxState(i, 7-i, SELECCIONADO)
+        }
+        _moveForBonus = movForBonus}
+    private fun setLevel10(movForBonus: Int){
+        setLevel8(movForBonus)
+        setLevel9(movForBonus)
+    }
 
     /*
      * ---- FUNCIONES DE ORDEN SUPERIOR SOBRE _uiState ----
