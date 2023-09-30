@@ -225,10 +225,11 @@ class HorseGameViewModel @Inject constructor(
     fun nextLevel() {
         if(_nextLevel){
             _uiState.updateLevel(_uiState.value.level + 1)
-            _uiState.updateLives(10)
+            _uiState.updateLives(5)
         } else {
             _uiState.updateLives(_uiState.value.lives - 1)
             if (_uiState.value.lives == 0){
+                _uiState.updateLives(5)
                 _uiState.updateLevel(1)
             }
         }
@@ -587,7 +588,7 @@ class HorseGameViewModel @Inject constructor(
         val invitacion = "Tu podrias hacerlo mejor ?\n"
         val score = "*Mi Puntaje:* $movesMade/64\n"
         val tiempo = "*Mi Tiempo:* ${_uiState.value.time}\n"
-        val enlace = "\n*Descarga el Juego !*\nhttps://drive.google.com/file/d/1f-5l6Kud72D9r3JlfVSTAJGx4yFJ_I3s/view?usp=sharing"
+        val enlace = "\n*Descarga el Juego !*\nhttps://drive.google.com/drive/folders/1XWqIJNlksEZedcVqZdqsLeXh10qY-TU3?usp=sharing"
 
         val msg = "$msgShareGame\n $invitacion $score $tiempo $enlace"
 
