@@ -36,6 +36,7 @@ class HorseGameViewModel @Inject constructor(
             val textFreeRef = createRefFor("textFreeRef")
             val textTitleRef = createRefFor("textTitleRef")
             val cardLevelRef = createRefFor("cardLevelRef")
+            val rowDatePlayRef = createRefFor("rowDatePlayRef")
             val cardMovesRef = createRefFor("cardMovesRef")
             val cardTimeRef = createRefFor("cardTimeRef")
             val cardLivesRef = createRefFor("cardLivesRef")
@@ -44,6 +45,7 @@ class HorseGameViewModel @Inject constructor(
             val finishedGameRef= createRefFor("finishedGameRef")
             val creditsRef= createRefFor("creditsRef")
             val boxPublicityRef = createRefFor("boxPublicityRef")
+
             val topTitleGuide = createGuidelineFromTop(0.08f)
 
             constrain(textFreeRef){
@@ -53,10 +55,9 @@ class HorseGameViewModel @Inject constructor(
             }
 
             constrain(textTitleRef){
-                top.linkTo(topTitleGuide)
+                top.linkTo(textFreeRef.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                width
             }
 
             constrain(cardLevelRef){
@@ -65,30 +66,36 @@ class HorseGameViewModel @Inject constructor(
                 end.linkTo(parent.end)
             }
 
-            constrain(cardMovesRef){
+            constrain(rowDatePlayRef){
                 top.linkTo(cardLevelRef.bottom)
                 start.linkTo(parent.start)
-                end.linkTo(cardTimeRef.start)
-            }
-            constrain(cardTimeRef){
-                top.linkTo(cardLevelRef.bottom)
-                start.linkTo(cardMovesRef.end)
-                end.linkTo(cardLivesRef.start)
-            }
-            constrain(cardLivesRef){
-                top.linkTo(cardLevelRef.bottom)
-                start.linkTo(cardTimeRef.end)
-                end.linkTo(cardOptionsRef.start)
-            }
-            constrain(cardOptionsRef){
-                top.linkTo(cardLevelRef.bottom)
-                start.linkTo(cardLivesRef.end)
                 end.linkTo(parent.end)
             }
-            createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
+
+//            constrain(cardMovesRef){
+//                top.linkTo(cardLevelRef.bottom)
+//                start.linkTo(parent.start)
+//                end.linkTo(cardTimeRef.start)
+//            }
+//            constrain(cardTimeRef){
+//                top.linkTo(cardLevelRef.bottom)
+//                start.linkTo(cardMovesRef.end)
+//                end.linkTo(cardLivesRef.start)
+//            }
+//            constrain(cardLivesRef){
+//                top.linkTo(cardLevelRef.bottom)
+//                start.linkTo(cardTimeRef.end)
+//                end.linkTo(cardOptionsRef.start)
+//            }
+//            constrain(cardOptionsRef){
+//                top.linkTo(cardLevelRef.bottom)
+//                start.linkTo(cardLivesRef.end)
+//                end.linkTo(parent.end)
+//            }
+//            createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
 
             constrain(tableRef){
-                top.linkTo(cardMovesRef.bottom, margin = 16.dp)
+                top.linkTo(rowDatePlayRef.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }

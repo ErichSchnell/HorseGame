@@ -10,6 +10,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -69,21 +71,24 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
             level = horseUiState.level
         )
 
-        Moves(modifier = Modifier.layoutId("cardMovesRef"),
-            moves = horseUiState.movesRemaining
-        )
-        Time(modifier = Modifier.layoutId("cardTimeRef"),
-            time = horseUiState.time
-        )
-        Lives(
-            modifier = Modifier.layoutId("cardLivesRef"),
-            lives = horseUiState.lives,
-            isPremium = horseUiState.isPremium
-        )
-        Options(modifier = Modifier.layoutId("cardOptionsRef"),
-            options = horseUiState.movesAvailable ,
-            progress = horseUiState.optionProgress
-        )
+        Row(modifier = Modifier.layoutId("rowDatePlayRef")) {
+
+            Moves(modifier = Modifier.weight(1f),
+                moves = horseUiState.movesRemaining
+            )
+            Time(modifier = Modifier.weight(1f),
+                time = horseUiState.time
+            )
+            Lives(
+                modifier = Modifier.weight(1f),
+                lives = horseUiState.lives,
+                isPremium = horseUiState.isPremium
+            )
+            Options(modifier = Modifier.weight(1f),
+                options = horseUiState.movesAvailable ,
+                progress = horseUiState.optionProgress
+            )
+        }
 
         Board(
             modifier = Modifier.layoutId("tableRef"),
@@ -109,7 +114,6 @@ fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
     Box(modifier = modifier
         .background(MaterialTheme.colorScheme.error)
         .fillMaxWidth()
-        .padding(vertical = 4.dp)
         .clickable {
             onClickAlert()
         },
@@ -117,8 +121,7 @@ fun AlertFree(modifier: Modifier, onClickAlert: () -> Unit) {
     ){
         Text(
             text = stringResource(id = R.string.alert_free),
-            fontFamily = amaranthFamily,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.errorContainer
         )
     }
@@ -138,16 +141,12 @@ fun Level(modifier: Modifier, level: Int) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
-            .size(60.dp),
+            .padding(start = 8.dp, end = 8.dp, bottom = 16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.level),
-            modifier = Modifier
-                .padding(bottom = 4.dp)
-                .align(Alignment.CenterHorizontally),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyLarge
         )
@@ -157,23 +156,17 @@ fun Level(modifier: Modifier, level: Int) {
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyLarge
         )
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 @Composable
 fun Moves(moves: Int, modifier: Modifier) {
     Card(
-        modifier = modifier
-            .width(80.dp)
-            .size(60.dp),
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.moves),
-            modifier = Modifier
-                .padding(bottom = 4.dp)
-                .align(Alignment.CenterHorizontally),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -183,18 +176,14 @@ fun Moves(moves: Int, modifier: Modifier) {
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 @Composable
 fun Time(modifier: Modifier, time: String) {
     Card(
-        modifier = modifier
-            .width(80.dp)
-            .size(60.dp),
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.time),
             modifier = Modifier
@@ -209,7 +198,6 @@ fun Time(modifier: Modifier, time: String) {
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 @Composable
@@ -222,12 +210,9 @@ fun Lives(modifier: Modifier, lives: Int, isPremium: Boolean = false) {
     }
 
     Card(
-        modifier = modifier
-            .width(80.dp)
-            .size(60.dp),
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.lives),
             modifier = Modifier
@@ -242,23 +227,17 @@ fun Lives(modifier: Modifier, lives: Int, isPremium: Boolean = false) {
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 @Composable
 fun Options(modifier: Modifier, options: String, progress:Float) {
     Card(
-        modifier = modifier
-            .width(80.dp)
-            .size(60.dp),
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.options),
-            modifier = Modifier
-                .padding(bottom = 4.dp)
-                .align(Alignment.CenterHorizontally),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -269,7 +248,6 @@ fun Options(modifier: Modifier, options: String, progress:Float) {
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
