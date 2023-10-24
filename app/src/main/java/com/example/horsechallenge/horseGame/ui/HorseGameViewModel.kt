@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+enum class WindowSizeClass { COMPACT, MEDIUM, EXPANDED }
+
 const val NO_SELECCIONADO = 0
 const val SELECCIONADO = 1
 const val BONUS = 2
@@ -270,8 +272,9 @@ class HorseGameViewModel @Inject constructor(
     }
 
     private fun isBonusUsed(x: Int, y: Int): Boolean{
-        if(_options == 0){
-            if (_uiState.value.board[x][y].boxState == BONUS || _uiState.value.board[x][y].boxState == NO_SELECCIONADO){
+        if(_options == 0 && _bonus != 0){
+            if (_uiState.value.board[x][y].boxState != SELECCIONADO){
+//            if (_uiState.value.board[x][y].boxState == BONUS || _uiState.value.board[x][y].boxState == NO_SELECCIONADO){
                 _bonus--
                 return true
             }
