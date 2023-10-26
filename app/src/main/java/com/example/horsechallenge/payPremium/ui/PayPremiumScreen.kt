@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.horsechallenge.R
+import com.example.horsechallenge.model.Routes
 import com.example.horsechallenge.ui.theme.md_theme_background_payPremium
 
 @Composable
@@ -34,7 +35,6 @@ fun PayPremiumScreen(
             .fillMaxSize()
             .background(md_theme_background_payPremium)
     ) {
-
         PayTitle(Modifier.layoutId("titleRef"))
 
         NoMoreAds(Modifier.layoutId("noAdsRef"))
@@ -42,7 +42,7 @@ fun PayPremiumScreen(
         KeepLevel(Modifier.layoutId("keepLvlRef"))
 
         PayButton(Modifier.layoutId("payRef")){
-            navigationController.navigate("sc_game")
+            navigationController.navigate(Routes.Game.route)
         }
 
     }
@@ -59,7 +59,9 @@ fun PayTitle(modifier: Modifier) {
 
 @Composable
 fun NoMoreAds(modifier: Modifier) {
-    Row(modifier = modifier.fillMaxWidth().padding(horizontal = 32.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier
+        .fillMaxWidth()
+        .padding(horizontal = 32.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
             modifier = Modifier.size(100.dp),
             painter = painterResource(id = R.drawable.iv_no_more_ads),
@@ -75,7 +77,9 @@ fun NoMoreAds(modifier: Modifier) {
 
 @Composable
 fun UnlimitedLives(modifier: Modifier) {
-    Row(modifier = modifier.fillMaxWidth().padding(horizontal = 32.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier
+        .fillMaxWidth()
+        .padding(horizontal = 32.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
             modifier = Modifier.size(100.dp),
             painter = painterResource(id = R.drawable.iv_unlimited_lives),
@@ -90,7 +94,9 @@ fun UnlimitedLives(modifier: Modifier) {
 }
 @Composable
 fun KeepLevel(modifier: Modifier) {
-    Row(modifier = modifier.fillMaxWidth().padding(horizontal = 32.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier
+        .fillMaxWidth()
+        .padding(horizontal = 32.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
             modifier = Modifier.size(100.dp),
             painter = painterResource(id = R.drawable.iv_keep_level),
@@ -107,7 +113,9 @@ fun KeepLevel(modifier: Modifier) {
 @Composable
 fun PayButton(modifier: Modifier, isclickedPay:() -> Unit) {
     Button(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 32.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp),
         onClick = {
             isclickedPay()
         }

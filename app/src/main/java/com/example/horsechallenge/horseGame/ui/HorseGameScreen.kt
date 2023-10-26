@@ -35,6 +35,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.horsechallenge.R
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
+import com.example.horsechallenge.model.Routes
 import com.example.horsechallenge.ui.theme.amaranthFamily
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -47,8 +48,8 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
 
     ConstraintLayout(constraints){
         AlertFree(Modifier.layoutId("textFreeRef")){
-            navigationController.navigate("sc_payPremium")
-//            horseGameViewModel.togglePremium()
+            navigationController.navigate(Routes.PayPremium.route)
+            //horseGameViewModel.togglePremium()
         }
 
         if(!horseUiState.isPremium) {

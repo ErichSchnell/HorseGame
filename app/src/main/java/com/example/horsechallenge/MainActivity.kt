@@ -12,11 +12,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.horsechallenge.horseGame.ui.HorseGameScreen
 import com.example.horsechallenge.horseGame.ui.HorseGameViewModel
+import com.example.horsechallenge.model.Routes
 import com.example.horsechallenge.payPremium.ui.PayPremiumScreen
 import com.example.horsechallenge.payPremium.ui.PayPremiumViewModel
 import com.example.horsechallenge.ui.theme.HorseChallengeTheme
@@ -49,9 +52,25 @@ class MainActivity : ComponentActivity() {
                     ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
 
                     val navigationController = rememberNavController()
-                    NavHost(navController = navigationController, startDestination = "sc_game"){
-                        composable(route = "sc_game"){ HorseGameScreen(horseGameViewModel, navigationController) }
-                        composable(route = "sc_payPremium"){ PayPremiumScreen(payPremiumViewModel, navigationController) }
+                    NavHost(navController = navigationController, startDestination = Routes.Game.route){
+
+                        composable(route = Routes.Game.route){
+                            HorseGameScreen(horseGameViewModel, navigationController)
+                        }
+
+                        composable(route = Routes.PayPremium.route){
+                            PayPremiumScreen(payPremiumViewModel, navigationController)
+                        }
+
+//                        composable(
+//                            route = Routes.PayPremium.route,
+//                            arguments = listOf(navArgument("state"){type = NavType.BoolType})
+//                        ){ backStackEntry ->
+//                            PayPremiumScreen(
+//                                payPremiumViewModel, navigationController,
+//                                backStackEntry.arguments?.getBoolean("state") ?: false
+//                            )
+//                        }
                     }
 
 
