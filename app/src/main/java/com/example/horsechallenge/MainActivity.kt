@@ -12,6 +12,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.horsechallenge.horseGame.ui.HorseGameScreen
 import com.example.horsechallenge.horseGame.ui.HorseGameViewModel
 import com.example.horsechallenge.payPremium.ui.PayPremiumScreen
@@ -45,8 +48,12 @@ class MainActivity : ComponentActivity() {
                     ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
                     ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
 
-//                    HorseGameScreen(horseGameViewModel)
-                    PayPremiumScreen(payPremiumViewModel)
+                    val navigationController = rememberNavController()
+                    NavHost(navController = navigationController, startDestination = "sc_game"){
+                        composable(route = "sc_game"){ HorseGameScreen(horseGameViewModel, navigationController) }
+                        composable(route = "sc_payPremium"){ PayPremiumScreen(payPremiumViewModel, navigationController) }
+                    }
+
 
                 }
             }

@@ -32,13 +32,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavHostController
 import com.example.horsechallenge.R
 import com.example.horsechallenge.horseGame.ui.model.ItemModel
 import com.example.horsechallenge.ui.theme.amaranthFamily
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
+fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController: NavHostController) {
 
     val context = LocalContext.current
     val horseUiState by horseGameViewModel.uiState.collectAsState()
@@ -46,7 +47,8 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel) {
 
     ConstraintLayout(constraints){
         AlertFree(Modifier.layoutId("textFreeRef")){
-            horseGameViewModel.togglePremium()
+            navigationController.navigate("sc_payPremium")
+//            horseGameViewModel.togglePremium()
         }
 
         if(!horseUiState.isPremium) {

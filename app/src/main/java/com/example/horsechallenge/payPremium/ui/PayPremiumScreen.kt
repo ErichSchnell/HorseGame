@@ -2,7 +2,6 @@ package com.example.horsechallenge.payPremium.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,22 +13,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavHostController
 import com.example.horsechallenge.R
-import com.example.horsechallenge.horseGame.ui.HorseGameViewModel
-import com.example.horsechallenge.ui.theme.amaranthFamily
 import com.example.horsechallenge.ui.theme.md_theme_background_payPremium
 
 @Composable
-fun PayPremiumScreen(payPremiumViewModel: PayPremiumViewModel) {
+fun PayPremiumScreen(
+    payPremiumViewModel: PayPremiumViewModel,
+    navigationController: NavHostController
+) {
     val constraints = payPremiumViewModel.homeConstraints()
 
     ConstraintLayout(
@@ -44,7 +41,9 @@ fun PayPremiumScreen(payPremiumViewModel: PayPremiumViewModel) {
         UnlimitedLives(Modifier.layoutId("unlimitedLivesRef"))
         KeepLevel(Modifier.layoutId("keepLvlRef"))
 
-        PayButton(Modifier.layoutId("payRef"))
+        PayButton(Modifier.layoutId("payRef")){
+            navigationController.navigate("sc_game")
+        }
 
     }
 }
@@ -106,10 +105,12 @@ fun KeepLevel(modifier: Modifier) {
 }
 
 @Composable
-fun PayButton(modifier: Modifier) {
+fun PayButton(modifier: Modifier, isclickedPay:() -> Unit) {
     Button(
         modifier = modifier.fillMaxWidth().padding(horizontal = 32.dp),
-        onClick = { /*TODO*/ }
+        onClick = {
+            isclickedPay()
+        }
     ) {
         Text(
             text = stringResource(id = R.string.pay_btn),
