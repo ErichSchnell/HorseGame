@@ -10,6 +10,8 @@ val md_theme_box_primary_free = Color(0xFF6650a4)
 val md_theme_box_primary_premium = Color(0xFF6650a4)
 val md_theme_box_secondary = Color(0xFF6650a4)
 
+val md_theme_background_payPremium = Color(0xFF2395D5)
+
 val md_theme_light_primary = Color(0xFF754C0A)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFFFDDBA)

@@ -15,4 +15,12 @@
     <string name="score">Score: %d/64</string>
     <string name="next_level">Play Again</string>
 
+    <string name="pay_title">Get Premium Access Forever</string>
+    <string name="no_more_ads">No more Ads</string>
+    <string name="unlimited_lives">Unlimited Lives</string>
+    <string name="keep_level">Keep your reached level</string>
+    <string name="pay_btn">PAY ONLY 1$ NOW</string>
+
+
+
 </resources>
