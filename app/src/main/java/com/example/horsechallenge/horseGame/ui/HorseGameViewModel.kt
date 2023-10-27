@@ -36,6 +36,33 @@ class HorseGameViewModel @Inject constructor(
     fun homeConstraints(): ConstraintSet {
         return ConstraintSet{
             val textFreeRef = createRefFor("textFreeRef")
+            val constraintRef = createRefFor("constraintRef")
+            val boxPublicityRef = createRefFor("boxPublicityRef")
+
+
+            constrain(textFreeRef){
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+
+            constrain(constraintRef){
+                top.linkTo(textFreeRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(boxPublicityRef.top)
+            }
+
+            constrain(boxPublicityRef){
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(parent.bottom)
+            }
+        }
+    }
+
+    fun bodyConstraints(): ConstraintSet {
+        return ConstraintSet{
             val textTitleRef = createRefFor("textTitleRef")
             val cardLevelRef = createRefFor("cardLevelRef")
             val cardMovesRef = createRefFor("cardMovesRef")
@@ -45,19 +72,25 @@ class HorseGameViewModel @Inject constructor(
             val tableRef= createRefFor("tableRef")
             val finishedGameRef= createRefFor("finishedGameRef")
             val creditsRef= createRefFor("creditsRef")
-            val boxPublicityRef = createRefFor("boxPublicityRef")
             val topTitleGuide = createGuidelineFromTop(0.08f)
 
-            constrain(textFreeRef){
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
+            val box1Ref= createRefFor("box1Ref")
+            val box2Ref= createRefFor("box2Ref")
+            val box3Ref= createRefFor("box3Ref")
+            val box4Ref= createRefFor("box4Ref")
+            val box5Ref= createRefFor("box5Ref")
+            val box6Ref= createRefFor("box6Ref")
+            val box7Ref= createRefFor("box7Ref")
+            val box8Ref= createRefFor("box8Ref")
+            val box9Ref= createRefFor("box9Ref")
+
+            createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
 
             constrain(textTitleRef){
                 top.linkTo(topTitleGuide)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
+                bottom.linkTo(cardLevelRef.top)
                 width
             }
 
@@ -65,34 +98,40 @@ class HorseGameViewModel @Inject constructor(
                 top.linkTo(textTitleRef.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
+                bottom.linkTo(cardMovesRef.top)
             }
 
             constrain(cardMovesRef){
                 top.linkTo(cardLevelRef.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(cardTimeRef.start)
+                bottom.linkTo(tableRef.top)
             }
             constrain(cardTimeRef){
                 top.linkTo(cardLevelRef.bottom)
                 start.linkTo(cardMovesRef.end)
                 end.linkTo(cardLivesRef.start)
+                bottom.linkTo(tableRef.top)
             }
             constrain(cardLivesRef){
                 top.linkTo(cardLevelRef.bottom)
                 start.linkTo(cardTimeRef.end)
                 end.linkTo(cardOptionsRef.start)
+                bottom.linkTo(tableRef.top)
             }
             constrain(cardOptionsRef){
                 top.linkTo(cardLevelRef.bottom)
                 start.linkTo(cardLivesRef.end)
                 end.linkTo(parent.end)
+                bottom.linkTo(tableRef.top)
             }
-            createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
+
 
             constrain(tableRef){
                 top.linkTo(cardMovesRef.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
+                bottom.linkTo(creditsRef.top)
             }
             constrain(finishedGameRef){
                 top.linkTo(tableRef.top)
@@ -102,18 +141,23 @@ class HorseGameViewModel @Inject constructor(
             }
 
             constrain(creditsRef){
+                top.linkTo(tableRef.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                top.linkTo(tableRef.bottom)
             }
 
-            constrain(boxPublicityRef){
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
+            constrain(box1Ref){ top.linkTo(creditsRef.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box2Ref){ top.linkTo(box1Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box3Ref){ top.linkTo(box2Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box4Ref){ top.linkTo(box3Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box5Ref){ top.linkTo(box4Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box6Ref){ top.linkTo(box5Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box7Ref){ top.linkTo(box6Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box8Ref){ top.linkTo(box7Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+            constrain(box9Ref){ top.linkTo(box8Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
         }
     }
+
 
     private val _uiState = MutableStateFlow(HorseUiState())
     val uiState: StateFlow<HorseUiState> = _uiState.asStateFlow()

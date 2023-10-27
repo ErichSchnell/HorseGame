@@ -13,17 +13,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -44,9 +48,61 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
 
     val context = LocalContext.current
     val horseUiState by horseGameViewModel.uiState.collectAsState()
-    val constraints = horseGameViewModel.homeConstraints()
+    val homeConstraints = horseGameViewModel.homeConstraints()
+    val bodyConstraints = horseGameViewModel.bodyConstraints()
 
-    ConstraintLayout(constraints){
+    ConstraintLayout(constraintSet = homeConstraints, modifier = Modifier.fillMaxSize()){
+        ConstraintLayout(constraintSet = bodyConstraints, modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .layoutId("constraintRef")){
+            Title(Modifier.layoutId("textTitleRef"))
+
+            Level(modifier = Modifier.layoutId("cardLevelRef"),
+                level = horseUiState.level
+            )
+
+            Moves(modifier = Modifier.layoutId("cardMovesRef"),
+                moves = horseUiState.movesRemaining
+            )
+            Time(modifier = Modifier.layoutId("cardTimeRef"),
+                time = horseUiState.time
+            )
+            Lives(
+                modifier = Modifier.layoutId("cardLivesRef"),
+                lives = horseUiState.lives,
+                isPremium = horseUiState.isPremium
+            )
+            Options(modifier = Modifier.layoutId("cardOptionsRef"),
+                options = horseUiState.movesAvailable ,
+                progress = horseUiState.optionProgress
+            )
+
+            Board(
+                modifier = Modifier.layoutId("tableRef"),
+                board = horseUiState.board,
+                onClickItem = { horseGameViewModel.onSelectedItem(it)}
+            )
+
+            if(horseUiState.finishedGame) {
+                FinishedGame(modifier = Modifier.layoutId("finishedGameRef"),
+                    title = horseUiState.msgGameFinished,
+                    score = horseUiState.score,
+                    onClickNextLevel = {horseGameViewModel.nextLevel()}
+                ) {horseGameViewModel.shareGame(context)}
+            }
+
+            Credits(modifier = Modifier.layoutId("creditsRef"))
+            Box (Modifier.layoutId("box1Ref").fillMaxWidth().height(50.dp).background(Color.Yellow)){}
+            Box (Modifier.layoutId("box2Ref").fillMaxWidth().height(50.dp).background(Color.Red)){}
+            Box (Modifier.layoutId("box3Ref").fillMaxWidth().height(50.dp).background(Color.Black)){}
+            Box (Modifier.layoutId("box4Ref").fillMaxWidth().height(50.dp).background(Color.Gray)){}
+            Box (Modifier.layoutId("box5Ref").fillMaxWidth().height(50.dp).background(Color.Green)){}
+            Box (Modifier.layoutId("box6Ref").fillMaxWidth().height(50.dp).background(Color.Blue)){}
+            Box (Modifier.layoutId("box7Ref").fillMaxWidth().height(50.dp).background(Color.Yellow)){}
+            Box (Modifier.layoutId("box8Ref").fillMaxWidth().height(50.dp).background(Color.Red)){}
+            Box (Modifier.layoutId("box9Ref").fillMaxWidth().height(50.dp).background(Color.Magenta)){}
+        }
+
         AlertFree(Modifier.layoutId("textFreeRef")){
             navigationController.navigate(Routes.PayPremium.route)
             //horseGameViewModel.togglePremium()
@@ -55,45 +111,6 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
         if(!horseUiState.isPremium) {
             Publicidad(modifier = Modifier.layoutId("boxPublicityRef"))
         }
-
-        Title(Modifier.layoutId("textTitleRef"))
-
-        Level(modifier = Modifier.layoutId("cardLevelRef"),
-            level = horseUiState.level
-        )
-
-        Moves(modifier = Modifier.layoutId("cardMovesRef"),
-            moves = horseUiState.movesRemaining
-        )
-        Time(modifier = Modifier.layoutId("cardTimeRef"),
-            time = horseUiState.time
-        )
-        Lives(
-            modifier = Modifier.layoutId("cardLivesRef"),
-            lives = horseUiState.lives,
-            isPremium = horseUiState.isPremium
-        )
-        Options(modifier = Modifier.layoutId("cardOptionsRef"),
-            options = horseUiState.movesAvailable ,
-            progress = horseUiState.optionProgress
-        )
-
-        Board(
-            modifier = Modifier.layoutId("tableRef"),
-            board = horseUiState.board,
-            onClickItem = { horseGameViewModel.onSelectedItem(it)}
-        )
-
-        if(horseUiState.finishedGame) {
-            FinishedGame(modifier = Modifier.layoutId("finishedGameRef"),
-                title = horseUiState.msgGameFinished,
-                score = horseUiState.score,
-                onClickNextLevel = {horseGameViewModel.nextLevel()}
-            ) {horseGameViewModel.shareGame(context)}
-        }
-
-        Credits(modifier = Modifier.layoutId("creditsRef"))
-
     }
 }
 
