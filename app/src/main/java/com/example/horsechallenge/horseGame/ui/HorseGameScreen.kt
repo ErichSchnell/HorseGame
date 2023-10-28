@@ -289,7 +289,7 @@ fun Board(
     board: List<List<ItemModel>>,
     onClickItem:(ItemModel) -> Unit
 ) {
-     Column(modifier = modifier) {
+     Column(modifier = modifier.padding(vertical = 16.dp)) {
         board.forEach { fila ->
             Row(modifier = Modifier.fillMaxWidth()) {
                 fila.forEach { item ->

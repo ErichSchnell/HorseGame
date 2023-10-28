@@ -87,11 +87,10 @@ class HorseGameViewModel @Inject constructor(
             createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
 
             constrain(textTitleRef){
-                top.linkTo(topTitleGuide)
+                top.linkTo(topTitleGuide,margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 bottom.linkTo(cardLevelRef.top)
-                width
             }
 
             constrain(cardLevelRef){
@@ -128,7 +127,7 @@ class HorseGameViewModel @Inject constructor(
 
 
             constrain(tableRef){
-                top.linkTo(cardMovesRef.bottom, margin = 16.dp)
+                top.linkTo(cardOptionsRef.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 bottom.linkTo(creditsRef.top)
