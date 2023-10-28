@@ -70,7 +70,10 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
             )
             Lives(
                 modifier = Modifier.layoutId("cardLivesRef"),
-                lives = horseUiState.lives,
+                lives = horseUiState.lives
+//                    if (!horseUiState.isPremium) horseUiState.lives.toString()
+//                    else "∞"
+                ,
                 isPremium = horseUiState.isPremium
             )
             Options(modifier = Modifier.layoutId("cardOptionsRef"),
@@ -93,15 +96,60 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
             }
 
             Credits(modifier = Modifier.layoutId("creditsRef"))
-            Box (Modifier.layoutId("box1Ref").fillMaxWidth().height(50.dp).background(Color.Yellow)){}
-            Box (Modifier.layoutId("box2Ref").fillMaxWidth().height(50.dp).background(Color.Red)){}
-            Box (Modifier.layoutId("box3Ref").fillMaxWidth().height(50.dp).background(Color.Black)){}
-            Box (Modifier.layoutId("box4Ref").fillMaxWidth().height(50.dp).background(Color.Gray)){}
-            Box (Modifier.layoutId("box5Ref").fillMaxWidth().height(50.dp).background(Color.Green)){}
-            Box (Modifier.layoutId("box6Ref").fillMaxWidth().height(50.dp).background(Color.Blue)){}
-            Box (Modifier.layoutId("box7Ref").fillMaxWidth().height(50.dp).background(Color.Yellow)){}
-            Box (Modifier.layoutId("box8Ref").fillMaxWidth().height(50.dp).background(Color.Red)){}
-            Box (Modifier.layoutId("box9Ref").fillMaxWidth().height(50.dp).background(Color.Magenta)){}
+            Box (
+                Modifier
+                    .layoutId("box1Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Yellow)){}
+            Box (
+                Modifier
+                    .layoutId("box2Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Red)){}
+            Box (
+                Modifier
+                    .layoutId("box3Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Black)){}
+            Box (
+                Modifier
+                    .layoutId("box4Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Gray)){}
+            Box (
+                Modifier
+                    .layoutId("box5Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Green)){}
+            Box (
+                Modifier
+                    .layoutId("box6Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Blue)){}
+            Box (
+                Modifier
+                    .layoutId("box7Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Yellow)){}
+            Box (
+                Modifier
+                    .layoutId("box8Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Red)){}
+            Box (
+                Modifier
+                    .layoutId("box9Ref")
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.Magenta)){}
         }
 
         AlertFree(Modifier.layoutId("textFreeRef")){
@@ -223,7 +271,7 @@ fun Time(modifier: Modifier, time: String) {
     }
 }
 @Composable
-fun Lives(modifier: Modifier, lives: Int, isPremium: Boolean = false) {
+fun Lives(modifier: Modifier, lives: String, isPremium: Boolean = false) {
     //premiumColor()
     val cardColor = if (isPremium) {
         MaterialTheme.colorScheme.tertiary
@@ -247,7 +295,7 @@ fun Lives(modifier: Modifier, lives: Int, isPremium: Boolean = false) {
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
-            text = lives.toString(),
+            text = lives,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodyMedium

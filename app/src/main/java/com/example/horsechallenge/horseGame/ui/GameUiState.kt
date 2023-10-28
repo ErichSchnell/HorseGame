@@ -8,7 +8,7 @@ data class HorseUiState(
     val level:Int = 1,
     val movesRemaining:Int = 63,
     val time:String = "00:00",
-    val lives:Int = 5,
+    val lives:String = "5",
 
     val optionProgress:Float = 0.0f,
     val movesAvailable:String = "0",

@@ -335,12 +335,17 @@ class HorseGameViewModel @Inject constructor(
     fun nextLevel() {
         if(_nextLevel){
             _uiState.updateLevel(_uiState.value.level + 1)
-            _uiState.updateLives(5)
+
+            if(!_uiState.value.isPremium) _uiState.updateLives(5)
         } else {
-            _uiState.updateLives(_uiState.value.lives - 1)
-            if (_uiState.value.lives == 0){
-                _uiState.updateLives(5)
-                _uiState.updateLevel(1)
+
+            if(!_uiState.value.isPremium) {
+                _uiState.updateLives(_uiState.value.lives.toInt() - 1)
+
+                if (_uiState.value.lives.equals("0")){
+                    _uiState.updateLives(5)
+                    _uiState.updateLevel(1)
+                }
             }
         }
         initGame()
@@ -503,6 +508,7 @@ class HorseGameViewModel @Inject constructor(
     fun togglePremium() {
         _uiState.updateIsPremium(!_uiState.value.isPremium)
         _uiState.updateBoardAllBackground()
+        _uiState.updateLives(5)
         checkBoxsAvailable()
     }
 
@@ -669,8 +675,14 @@ class HorseGameViewModel @Inject constructor(
         }}
     private fun  MutableStateFlow<HorseUiState>.updateLives(lives: Int){
         this.update {
-            it.copy(lives = lives)
-        }}
+            if (!_uiState.value.isPremium){
+                it.copy(lives = lives.toString())
+            } else {
+                it.copy(lives = "∞")
+            }
+        }
+    }
+
     private fun  MutableStateFlow<HorseUiState>.updateMovesAvailable(){
         this.update {
             it.copy(movesAvailable = getMovesAvailable())
