@@ -41,7 +41,7 @@ fun PayPremiumScreen(horseGameViewModel: HorseGameViewModel, navigationControlle
 
         PayButton(Modifier.layoutId("payRef")){
             horseGameViewModel.togglePremium()
-            navigationController.navigate(Routes.Game.route)
+            navigationController.popBackStack()
         }
 
     }
