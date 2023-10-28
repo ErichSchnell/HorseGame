@@ -1,5 +1,6 @@
-package com.example.horsechallenge.payPremium.ui
+package com.example.horsechallenge.horseGame.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -24,11 +25,8 @@ import com.example.horsechallenge.model.Routes
 import com.example.horsechallenge.ui.theme.md_theme_background_payPremium
 
 @Composable
-fun PayPremiumScreen(
-    payPremiumViewModel: PayPremiumViewModel,
-    navigationController: NavHostController
-) {
-    val constraints = payPremiumViewModel.homeConstraints()
+fun PayPremiumScreen(horseGameViewModel: HorseGameViewModel, navigationController: NavHostController) {
+    val constraints = horseGameViewModel.paySceenConstraints()
 
     ConstraintLayout(
         constraintSet = constraints, modifier = Modifier
@@ -42,6 +40,7 @@ fun PayPremiumScreen(
         KeepLevel(Modifier.layoutId("keepLvlRef"))
 
         PayButton(Modifier.layoutId("payRef")){
+            horseGameViewModel.togglePremium()
             navigationController.navigate(Routes.Game.route)
         }
 

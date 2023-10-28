@@ -3,6 +3,7 @@ package com.example.horsechallenge.horseGame.ui
 import android.content.Context
 import android.os.Build
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 
@@ -38,7 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.horsechallenge.R
-import com.example.horsechallenge.horseGame.ui.model.ItemModel
+import com.example.horsechallenge.horseGame.ui.model.SquareModel
 import com.example.horsechallenge.model.Routes
 import com.example.horsechallenge.ui.theme.amaranthFamily
 
@@ -48,8 +49,8 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
 
     val context = LocalContext.current
     val horseUiState by horseGameViewModel.uiState.collectAsState()
-    val homeConstraints = horseGameViewModel.homeConstraints()
-    val bodyConstraints = horseGameViewModel.bodyConstraints()
+    val homeConstraints = horseGameViewModel.horseScreenConstraints()
+    val bodyConstraints = horseGameViewModel.horseBodyConstraints()
 
     ConstraintLayout(constraintSet = homeConstraints, modifier = Modifier.fillMaxSize()){
         ConstraintLayout(constraintSet = bodyConstraints, modifier = Modifier
@@ -105,7 +106,6 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
 
         AlertFree(Modifier.layoutId("textFreeRef")){
             navigationController.navigate(Routes.PayPremium.route)
-            //horseGameViewModel.togglePremium()
         }
 
         if(!horseUiState.isPremium) {
@@ -286,8 +286,8 @@ fun Options(modifier: Modifier, options: String, progress:Float) {
 @Composable
 fun Board(
     modifier: Modifier,
-    board: List<List<ItemModel>>,
-    onClickItem:(ItemModel) -> Unit
+    board: List<List<SquareModel>>,
+    onClickItem:(SquareModel) -> Unit
 ) {
      Column(modifier = modifier.padding(vertical = 16.dp)) {
         board.forEach { fila ->
@@ -304,8 +304,8 @@ fun Board(
 }
 @Composable
 fun ItemTablero(
-    itemModel: ItemModel,
-    onClickItem: (ItemModel) -> Unit
+    squareModel: SquareModel,
+    onClickItem: (SquareModel) -> Unit
 ){
     val (width, _) = getScreenDimensions(LocalContext.current)
     val sizeBox = width/8
@@ -314,19 +314,19 @@ fun ItemTablero(
         modifier = Modifier
             .width(sizeBox.dp)
             .height(sizeBox.dp)
-            .background(itemModel.background)
+            .background(squareModel.background)
             .clickable {
-                onClickItem(itemModel)
+                onClickItem(squareModel)
             }
     ){
-        if(itemModel.boxState == SELECCIONADO){
+        if(squareModel.boxState == SELECCIONADO){
             Image(
                 modifier = Modifier.align(Alignment.Center),
                 painter = painterResource(id = R.drawable.iv_horse),
                 contentDescription = "im_horse"
             )
         }
-        if(itemModel.boxState == BONUS){
+        if(squareModel.boxState == BONUS){
             Image(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -335,7 +335,7 @@ fun ItemTablero(
                 contentDescription = "im_bonus"
             )
         }
-        if(itemModel.hability){
+        if(squareModel.hability){
             Image(
                 modifier = Modifier
                     .align(Alignment.Center),

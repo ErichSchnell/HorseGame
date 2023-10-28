@@ -12,16 +12,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.horsechallenge.horseGame.ui.HorseGameScreen
 import com.example.horsechallenge.horseGame.ui.HorseGameViewModel
 import com.example.horsechallenge.model.Routes
-import com.example.horsechallenge.payPremium.ui.PayPremiumScreen
-import com.example.horsechallenge.payPremium.ui.PayPremiumViewModel
+import com.example.horsechallenge.horseGame.ui.PayPremiumScreen
 import com.example.horsechallenge.ui.theme.HorseChallengeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,7 +32,6 @@ class MainActivity : ComponentActivity() {
 //    private var mediaProjection: MediaProjection? = null
 
     private val horseGameViewModel:HorseGameViewModel by viewModels()
-    private val payPremiumViewModel:PayPremiumViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @RequiresApi(Build.VERSION_CODES.S)
@@ -59,7 +55,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(route = Routes.PayPremium.route){
-                            PayPremiumScreen(payPremiumViewModel, navigationController)
+                            PayPremiumScreen(horseGameViewModel, navigationController)
                         }
 
 //                        composable(

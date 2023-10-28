@@ -8,7 +8,7 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.horsechallenge.horseGame.ui.model.ItemModel
+import com.example.horsechallenge.horseGame.ui.model.SquareModel
 import com.example.horsechallenge.ui.theme.md_theme_box_selected
 import com.example.horsechallenge.ui.theme.md_theme_box_selected_bf
 import com.example.horsechallenge.ui.theme.md_theme_light_onSecondary
@@ -33,7 +33,7 @@ const val BONUS = 2
 class HorseGameViewModel @Inject constructor(
 ):ViewModel() {
 
-    fun homeConstraints(): ConstraintSet {
+    fun horseScreenConstraints(): ConstraintSet {
         return ConstraintSet{
             val textFreeRef = createRefFor("textFreeRef")
             val constraintRef = createRefFor("constraintRef")
@@ -60,8 +60,7 @@ class HorseGameViewModel @Inject constructor(
             }
         }
     }
-
-    fun bodyConstraints(): ConstraintSet {
+    fun horseBodyConstraints(): ConstraintSet {
         return ConstraintSet{
             val textTitleRef = createRefFor("textTitleRef")
             val cardLevelRef = createRefFor("cardLevelRef")
@@ -154,6 +153,72 @@ class HorseGameViewModel @Inject constructor(
             constrain(box7Ref){ top.linkTo(box6Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
             constrain(box8Ref){ top.linkTo(box7Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
             constrain(box9Ref){ top.linkTo(box8Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+        }
+    }
+    fun paySceenConstraints(): ConstraintSet {
+        return ConstraintSet {
+
+            val topGuideRef = createRefFor("topGuideRef")
+            val titleRef = createRefFor("titleRef")
+            val noAdsRef = createRefFor("noAdsRef")
+            val unlimitedLivesRef = createRefFor("unlimitedLivesRef")
+            val keepLvlRef = createRefFor("keepLvlRef")
+            val payRef = createRefFor("payRef")
+            val bottomGuideRef = createRefFor("bottomGuideRef")
+
+            constrain(topGuideRef) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(titleRef.top)
+            }
+            constrain(titleRef) {
+                top.linkTo(topGuideRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(noAdsRef.top)
+            }
+            constrain(noAdsRef) {
+                top.linkTo(titleRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(unlimitedLivesRef.top)
+            }
+            constrain(unlimitedLivesRef) {
+                top.linkTo(noAdsRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(keepLvlRef.top)
+            }
+            constrain(keepLvlRef) {
+                top.linkTo(unlimitedLivesRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(payRef.top)
+            }
+            constrain(payRef) {
+                top.linkTo(keepLvlRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(bottomGuideRef.top)
+            }
+            constrain(bottomGuideRef) {
+                top.linkTo(payRef.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(parent.bottom)
+            }
+
+            createVerticalChain(
+                topGuideRef,
+                titleRef,
+                noAdsRef,
+                unlimitedLivesRef,
+                keepLvlRef,
+                payRef,
+                bottomGuideRef,
+                chainStyle = ChainStyle.SpreadInside
+            )
         }
     }
 
@@ -281,18 +346,18 @@ class HorseGameViewModel @Inject constructor(
         initGame()
     }
 
-    fun onSelectedItem(itemModel: ItemModel) {
-        if(isBoxAvailable(itemModel.x, itemModel.y) || isBonusUsed(itemModel.x,itemModel.y)){
+    fun onSelectedItem(squareModel: SquareModel) {
+        if(isBoxAvailable(squareModel.x, squareModel.y) || isBonusUsed(squareModel.x,squareModel.y)){
 
             initTime()
 
             setHabilityBoxesFree(false)
 
-            saveLastCoordSelected(itemModel.x,itemModel.y)
+            saveLastCoordSelected(squareModel.x,squareModel.y)
 
             if(isBoxBonus()) _bonus++
 
-            _uiState.updateBoardBoxState(itemModel.x, itemModel.y, SELECCIONADO)
+            _uiState.updateBoardBoxState(squareModel.x, squareModel.y, SELECCIONADO)
             _uiState.updateMoves(_uiState.value.movesRemaining.dec())
             _uiState.updateBoardAllBackground()
 
@@ -398,7 +463,7 @@ class HorseGameViewModel @Inject constructor(
         }
     }
 
-    private fun getBoxColor(box: ItemModel): Color{
+    private fun getBoxColor(box: SquareModel): Color{
         return if(box.boxState == SELECCIONADO){
             if(box.x == _lastX && box.y == _lastY){
                 md_theme_box_selected
@@ -478,14 +543,14 @@ class HorseGameViewModel @Inject constructor(
     /*
      * ---- ¡¡¡ LEVELS !!! ----
      */
-    private fun getBoardMutable(): MutableList<MutableList<ItemModel>>{
-        val boardAuxState: MutableList<MutableList<ItemModel>> = mutableListOf()
+    private fun getBoardMutable(): MutableList<MutableList<SquareModel>>{
+        val boardAuxState: MutableList<MutableList<SquareModel>> = mutableListOf()
 
         for (i in 0 until 8){
-            val newRow: MutableList<ItemModel> = mutableListOf()
+            val newRow: MutableList<SquareModel> = mutableListOf()
 
             for (j in 0 until 8){
-                newRow.add(ItemModel(
+                newRow.add(SquareModel(
                     x = i,
                     y = j,
                     background = getInitBoxColor(i,j)
@@ -641,7 +706,7 @@ class HorseGameViewModel @Inject constructor(
         this.update {
             it.copy(msgShareGame = msg)
         }}
-    private fun  MutableStateFlow<HorseUiState>.updateBoard(board: MutableList<MutableList<ItemModel>>){
+    private fun  MutableStateFlow<HorseUiState>.updateBoard(board: MutableList<MutableList<SquareModel>>){
         this.update {
             it.copy(board = board)
         }

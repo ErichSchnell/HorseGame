@@ -1,6 +1,6 @@
 package com.example.horsechallenge.horseGame.ui
 
-import com.example.horsechallenge.horseGame.ui.model.ItemModel
+import com.example.horsechallenge.horseGame.ui.model.SquareModel
 
 data class HorseUiState(
     val isPremium: Boolean = false,
@@ -19,5 +19,5 @@ data class HorseUiState(
 
     val msgShareGame:String = "",
 
-    val board: MutableList<MutableList<ItemModel>> = mutableListOf(),
+    val board: MutableList<MutableList<SquareModel>> = mutableListOf(),
 )
