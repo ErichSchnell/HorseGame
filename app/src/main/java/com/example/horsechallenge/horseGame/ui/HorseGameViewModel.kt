@@ -2,6 +2,7 @@ package com.example.horsechallenge.horseGame.ui
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -155,6 +156,12 @@ class HorseGameViewModel @Inject constructor(
                 }
             }
         }
+        initGame()
+    }
+    fun selectLevel(level:Int) {
+        Log.i("selectLvl", "selectLevel: ${_uiState.value.level}")
+        _uiState.updateLevel(level)
+        Log.i("selectLvl", "selectLevel: ${_uiState.value.level}")
         initGame()
     }
 

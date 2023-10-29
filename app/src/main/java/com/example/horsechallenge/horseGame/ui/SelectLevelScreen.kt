@@ -1,17 +1,16 @@
 package com.example.horsechallenge.horseGame.ui
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,10 +35,18 @@ import com.example.horsechallenge.ui.theme.md_theme_box_select_lvl
 @Composable
 fun SelectLevelScreen(horseGameViewModel: HorseGameViewModel, navigationController: NavHostController){
     val selectConstraitRef = SelectLvlConstraint()
+    val levelList = arrayOf(
+        arrayOf(1,2,3,4,5),
+        arrayOf(6,7,8,9,10)
+    )
+
     ConstraintLayout(constraintSet = selectConstraitRef, modifier = Modifier.fillMaxSize()){
         SelectLvlTitle(Modifier.layoutId("titleRef"))
-        Levels(Modifier.layoutId("bodyRef")){ lvl ->
-            lvl
+        Levels(modifier = Modifier.layoutId("bodyRef"), levels = levelList){ lvl ->
+            Log.i("selectLvl", "SelectLevelScreen: $lvl")
+            horseGameViewModel.selectLevel(lvl)
+            Log.i("selectLvl", "SelectLevelScreen: $lvl")
+            navigationController.popBackStack()
         }
         BtnReturn(Modifier.layoutId("returnRef")){
             navigationController.popBackStack()
@@ -87,7 +94,7 @@ fun SelectLvlTitle(modifier: Modifier){
     )
 }
 @Composable
-fun Levels(modifier: Modifier, onClicked:(Int)->Unit){
+fun Levels(modifier: Modifier, levels: Array<Array<Int>>, onClicked: (Int) -> Unit){
     Card(modifier = modifier
         .fillMaxWidth()
         .padding(16.dp),
@@ -103,36 +110,26 @@ fun Levels(modifier: Modifier, onClicked:(Int)->Unit){
             horizontalAlignment = Alignment.CenterHorizontally
         ){
 
-            var cont = 1
-            for (i in 0 .. 1){
-//                Spacer(modifier = Modifier.weight(.25f))
-                Row(modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)){
+            levels.forEach {row ->
+                Row(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)){
+                    row.forEach {lvl ->
 
-                    for (i in 0 .. 4){
                         Card (
-                            modifier = Modifier
-                                .weight(0.2f)
-                                .fillMaxHeight()
-                                .padding(8.dp)
-                                .clickable { onClicked(cont) },
+                            modifier = Modifier.weight(0.2f).fillMaxHeight().padding(8.dp).clickable { onClicked(lvl) },
                             colors = CardDefaults.cardColors( containerColor = md_theme_box_select_lvl ),
                             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ){
                             Box (Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
                                 Text(
-                                    text = "$cont",
+                                    text = "$lvl",
                                     style = MaterialTheme.typography.titleLarge,
                                     color = Color.Black
                                 )
                             }
                         }
-                        cont++
                     }
                 }
             }
-//            Spacer(modifier = Modifier.weight(.25f))
         }
     }
 }
