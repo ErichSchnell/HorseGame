@@ -21,6 +21,9 @@
     <string name="keep_level">Keep your reached level</string>
     <string name="pay_btn">PAY ONLY 1$ NOW</string>
 
+    <string name="select_lvl_title">Select your Level!</string>
+    <string name="select_lvl_return">Go Back</string>
+
 
 
 </resources>

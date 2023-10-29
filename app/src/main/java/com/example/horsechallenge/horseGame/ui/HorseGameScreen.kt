@@ -1,10 +1,6 @@
 package com.example.horsechallenge.horseGame.ui
 
-import android.content.Context
 import android.os.Build
-import android.util.DisplayMetrics
-import android.util.Log
-import android.view.WindowManager
 import androidx.annotation.RequiresApi
 
 import androidx.compose.foundation.Image
@@ -28,7 +24,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -36,10 +31,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
 import androidx.navigation.NavHostController
 import com.example.horsechallenge.R
 import com.example.horsechallenge.horseGame.ui.model.SquareModel
+import com.example.horsechallenge.model.DimensionsScreen
 import com.example.horsechallenge.model.Routes
 import com.example.horsechallenge.ui.theme.amaranthFamily
 
@@ -49,8 +47,124 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
 
     val context = LocalContext.current
     val horseUiState by horseGameViewModel.uiState.collectAsState()
-    val homeConstraints = horseGameViewModel.horseScreenConstraints()
-    val bodyConstraints = horseGameViewModel.horseBodyConstraints()
+    val homeConstraints = ConstraintSet{
+        val textFreeRef = createRefFor("textFreeRef")
+        val constraintRef = createRefFor("constraintRef")
+        val boxPublicityRef = createRefFor("boxPublicityRef")
+
+
+        constrain(textFreeRef){
+            top.linkTo(parent.top)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+        }
+
+        constrain(constraintRef){
+            top.linkTo(textFreeRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(boxPublicityRef.top)
+        }
+
+        constrain(boxPublicityRef){
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(parent.bottom)
+        }
+    }
+    val bodyConstraints = ConstraintSet{
+        val textTitleRef = createRefFor("textTitleRef")
+        val cardLevelRef = createRefFor("cardLevelRef")
+        val cardMovesRef = createRefFor("cardMovesRef")
+        val cardTimeRef = createRefFor("cardTimeRef")
+        val cardLivesRef = createRefFor("cardLivesRef")
+        val cardOptionsRef = createRefFor("cardOptionsRef")
+        val tableRef= createRefFor("tableRef")
+        val finishedGameRef= createRefFor("finishedGameRef")
+        val creditsRef= createRefFor("creditsRef")
+        val topTitleGuide = createGuidelineFromTop(0.08f)
+
+        val box1Ref= createRefFor("box1Ref")
+        val box2Ref= createRefFor("box2Ref")
+        val box3Ref= createRefFor("box3Ref")
+        val box4Ref= createRefFor("box4Ref")
+        val box5Ref= createRefFor("box5Ref")
+        val box6Ref= createRefFor("box6Ref")
+        val box7Ref= createRefFor("box7Ref")
+        val box8Ref= createRefFor("box8Ref")
+        val box9Ref= createRefFor("box9Ref")
+
+        createHorizontalChain(cardMovesRef,cardTimeRef,cardLivesRef,cardOptionsRef, chainStyle = ChainStyle.Spread)
+
+        constrain(textTitleRef){
+            top.linkTo(topTitleGuide,margin = 16.dp)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(cardLevelRef.top)
+        }
+
+        constrain(cardLevelRef){
+            top.linkTo(textTitleRef.bottom, margin = 16.dp)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(cardMovesRef.top)
+        }
+
+        constrain(cardMovesRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(cardTimeRef.start)
+            bottom.linkTo(tableRef.top)
+        }
+        constrain(cardTimeRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(cardMovesRef.end)
+            end.linkTo(cardLivesRef.start)
+            bottom.linkTo(tableRef.top)
+        }
+        constrain(cardLivesRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(cardTimeRef.end)
+            end.linkTo(cardOptionsRef.start)
+            bottom.linkTo(tableRef.top)
+        }
+        constrain(cardOptionsRef){
+            top.linkTo(cardLevelRef.bottom)
+            start.linkTo(cardLivesRef.end)
+            end.linkTo(parent.end)
+            bottom.linkTo(tableRef.top)
+        }
+
+
+        constrain(tableRef){
+            top.linkTo(cardOptionsRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(creditsRef.top)
+        }
+        constrain(finishedGameRef){
+            top.linkTo(tableRef.top)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(tableRef.bottom)
+        }
+
+        constrain(creditsRef){
+            top.linkTo(tableRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+        }
+
+//        constrain(box1Ref){ top.linkTo(creditsRef.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box2Ref){ top.linkTo(box1Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box3Ref){ top.linkTo(box2Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box4Ref){ top.linkTo(box3Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box5Ref){ top.linkTo(box4Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box6Ref){ top.linkTo(box5Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box7Ref){ top.linkTo(box6Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box8Ref){ top.linkTo(box7Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+//        constrain(box9Ref){ top.linkTo(box8Ref.bottom) ; start.linkTo(parent.start) ; end.linkTo(parent.end) }
+    }
 
     ConstraintLayout(constraintSet = homeConstraints, modifier = Modifier.fillMaxSize()){
         ConstraintLayout(constraintSet = bodyConstraints, modifier = Modifier
@@ -60,7 +174,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
 
             Level(modifier = Modifier.layoutId("cardLevelRef"),
                 level = horseUiState.level
-            )
+            ){ if(horseUiState.isPremium) navigationController.navigate(Routes.SelectLvl.route) }
 
             Moves(modifier = Modifier.layoutId("cardMovesRef"),
                 moves = horseUiState.movesRemaining
@@ -70,10 +184,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
             )
             Lives(
                 modifier = Modifier.layoutId("cardLivesRef"),
-                lives = horseUiState.lives
-//                    if (!horseUiState.isPremium) horseUiState.lives.toString()
-//                    else "∞"
-                ,
+                lives = horseUiState.lives,
                 isPremium = horseUiState.isPremium
             )
             Options(modifier = Modifier.layoutId("cardOptionsRef"),
@@ -96,7 +207,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
             }
 
             Credits(modifier = Modifier.layoutId("creditsRef"))
-            Box (
+            /*Box (
                 Modifier
                     .layoutId("box1Ref")
                     .fillMaxWidth()
@@ -149,7 +260,7 @@ fun HorseGameScreen(horseGameViewModel: HorseGameViewModel, navigationController
                     .layoutId("box9Ref")
                     .fillMaxWidth()
                     .height(50.dp)
-                    .background(Color.Magenta)){}
+                    .background(Color.Magenta)){}*/
         }
 
         AlertFree(Modifier.layoutId("textFreeRef")){
@@ -192,12 +303,13 @@ fun Title(modifier: Modifier) {
     )
 }
 @Composable
-fun Level(modifier: Modifier, level: Int) {
+fun Level(modifier: Modifier, level: Int, onClicked:()->Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
-            .size(60.dp),
+            .size(60.dp)
+            .clickable { onClicked() },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -355,7 +467,7 @@ fun ItemTablero(
     squareModel: SquareModel,
     onClickItem: (SquareModel) -> Unit
 ){
-    val (width, _) = getScreenDimensions(LocalContext.current)
+    val (width, _) = DimensionsScreen.getScreenDimensions(LocalContext.current)
     val sizeBox = width/8
 
     Box(
@@ -461,17 +573,6 @@ fun Credits(modifier: Modifier){
         Text(text = stringResource(id = R.string.instructions), fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
         Text(text = stringResource(id = R.string.credits), fontSize = 12.sp, fontFamily = amaranthFamily, fontWeight = FontWeight.Normal)
     }
-}
-
-fun getScreenDimensions(context: Context): Pair<Float, Float> {
-    val displayMetrics = DisplayMetrics()
-    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    windowManager.defaultDisplay.getMetrics(displayMetrics)
-
-    val widthDp = displayMetrics.widthPixels / (displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
-    val heightDp = displayMetrics.heightPixels / (displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
-
-    return Pair(widthDp, heightDp)
 }
 
 @Composable

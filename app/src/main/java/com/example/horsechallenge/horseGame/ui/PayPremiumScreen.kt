@@ -18,7 +18,9 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
 import androidx.navigation.NavHostController
 import com.example.horsechallenge.R
 import com.example.horsechallenge.model.Routes
@@ -26,7 +28,70 @@ import com.example.horsechallenge.ui.theme.md_theme_background_payPremium
 
 @Composable
 fun PayPremiumScreen(horseGameViewModel: HorseGameViewModel, navigationController: NavHostController) {
-    val constraints = horseGameViewModel.paySceenConstraints()
+    val constraints = ConstraintSet {
+
+        val topGuideRef = createRefFor("topGuideRef")
+        val titleRef = createRefFor("titleRef")
+        val noAdsRef = createRefFor("noAdsRef")
+        val unlimitedLivesRef = createRefFor("unlimitedLivesRef")
+        val keepLvlRef = createRefFor("keepLvlRef")
+        val payRef = createRefFor("payRef")
+        val bottomGuideRef = createRefFor("bottomGuideRef")
+
+        constrain(topGuideRef) {
+            top.linkTo(parent.top)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(titleRef.top)
+        }
+        constrain(titleRef) {
+            top.linkTo(topGuideRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(noAdsRef.top)
+        }
+        constrain(noAdsRef) {
+            top.linkTo(titleRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(unlimitedLivesRef.top)
+        }
+        constrain(unlimitedLivesRef) {
+            top.linkTo(noAdsRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(keepLvlRef.top)
+        }
+        constrain(keepLvlRef) {
+            top.linkTo(unlimitedLivesRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(payRef.top)
+        }
+        constrain(payRef) {
+            top.linkTo(keepLvlRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(bottomGuideRef.top)
+        }
+        constrain(bottomGuideRef) {
+            top.linkTo(payRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(parent.bottom)
+        }
+
+        createVerticalChain(
+            topGuideRef,
+            titleRef,
+            noAdsRef,
+            unlimitedLivesRef,
+            keepLvlRef,
+            payRef,
+            bottomGuideRef,
+            chainStyle = ChainStyle.SpreadInside
+        )
+    }
 
     ConstraintLayout(
         constraintSet = constraints, modifier = Modifier

@@ -19,6 +19,7 @@ import com.example.horsechallenge.horseGame.ui.HorseGameScreen
 import com.example.horsechallenge.horseGame.ui.HorseGameViewModel
 import com.example.horsechallenge.model.Routes
 import com.example.horsechallenge.horseGame.ui.PayPremiumScreen
+import com.example.horsechallenge.horseGame.ui.SelectLevelScreen
 import com.example.horsechallenge.ui.theme.HorseChallengeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -58,15 +59,9 @@ class MainActivity : ComponentActivity() {
                             PayPremiumScreen(horseGameViewModel, navigationController)
                         }
 
-//                        composable(
-//                            route = Routes.PayPremium.route,
-//                            arguments = listOf(navArgument("state"){type = NavType.BoolType})
-//                        ){ backStackEntry ->
-//                            PayPremiumScreen(
-//                                payPremiumViewModel, navigationController,
-//                                backStackEntry.arguments?.getBoolean("state") ?: false
-//                            )
-//                        }
+                        composable(route = Routes.SelectLvl.route){
+                            SelectLevelScreen(horseGameViewModel, navigationController)
+                        }
                     }
 
 
