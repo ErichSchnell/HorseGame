@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -188,5 +189,92 @@ fun PayButton(modifier: Modifier, isclickedPay:() -> Unit) {
             text = stringResource(id = R.string.pay_btn),
             style = MaterialTheme.typography.titleMedium
         )
+    }
+}
+
+@Preview
+@Composable
+fun PreviewPay() {
+    val constraints = ConstraintSet {
+
+        val topGuideRef = createRefFor("topGuideRef")
+        val titleRef = createRefFor("titleRef")
+        val noAdsRef = createRefFor("noAdsRef")
+        val unlimitedLivesRef = createRefFor("unlimitedLivesRef")
+        val keepLvlRef = createRefFor("keepLvlRef")
+        val payRef = createRefFor("payRef")
+        val bottomGuideRef = createRefFor("bottomGuideRef")
+
+        constrain(topGuideRef) {
+            top.linkTo(parent.top)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(titleRef.top)
+        }
+        constrain(titleRef) {
+            top.linkTo(topGuideRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(noAdsRef.top)
+        }
+        constrain(noAdsRef) {
+            top.linkTo(titleRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(unlimitedLivesRef.top)
+        }
+        constrain(unlimitedLivesRef) {
+            top.linkTo(noAdsRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(keepLvlRef.top)
+        }
+        constrain(keepLvlRef) {
+            top.linkTo(unlimitedLivesRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(payRef.top)
+        }
+        constrain(payRef) {
+            top.linkTo(keepLvlRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(bottomGuideRef.top)
+        }
+        constrain(bottomGuideRef) {
+            top.linkTo(payRef.bottom)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(parent.bottom)
+        }
+
+        createVerticalChain(
+            topGuideRef,
+            titleRef,
+            noAdsRef,
+            unlimitedLivesRef,
+            keepLvlRef,
+            payRef,
+            bottomGuideRef,
+            chainStyle = ChainStyle.SpreadInside
+        )
+    }
+
+    ConstraintLayout(
+        constraintSet = constraints, modifier = Modifier
+            .fillMaxSize()
+            .background(md_theme_background_payPremium)
+    ) {
+        PayTitle(Modifier.layoutId("titleRef"))
+
+        NoMoreAds(Modifier.layoutId("noAdsRef"))
+        UnlimitedLives(Modifier.layoutId("unlimitedLivesRef"))
+        KeepLevel(Modifier.layoutId("keepLvlRef"))
+
+        PayButton(Modifier.layoutId("payRef")){
+//            horseGameViewModel.togglePremium()
+//            navigationController.popBackStack()
+        }
+
     }
 }
